@@ -76,7 +76,7 @@
 
 ### 方式一：便携版（推荐，零环境依赖）
 
-从 Releases 下载 `小区健身房管理系统-便携版.zip`（约 113 MB），解压后双击 **启动系统.bat**，浏览器会自动打开 <http://127.0.0.1:8080/>。
+从 [Releases](https://github.com/gentlehx/gym-management-system/releases/latest) 下载 `gym-management-system-portable-win64.zip`（约 107 MB），解压后双击 **启动系统.bat**，浏览器会自动打开 <http://127.0.0.1:8080/>。
 
 便携包内置精简版 MySQL 8.0.28 与 Java 运行时，**无需安装 JDK、MySQL、Maven**；不写注册表、不装系统服务，删除文件夹即彻底卸载。首次启动会自动建库并导入演示数据（约 30 秒）。
 
@@ -171,7 +171,7 @@ java -jar target/gym-management-system-0.0.1-SNAPSHOT.jar
 ## 文档
 
 - [`docs/软件使用说明书.docx`](docs/软件使用说明书.docx)：10 章、22 张表格，覆盖安装启动、两端逐模块操作、典型业务场景、业务规则、故障排查与附录。
-- 另提供《视频图解版说明书》与系统演示视频（2 分 53 秒），见 Releases。
+- 另提供《软件使用说明书》（Word，30 页）、《视频图解版说明书》（Word，23 页，含 18 张界面截图）与 2 分 53 秒操作演示视频，均见 [Releases](https://github.com/gentlehx/gym-management-system/releases/latest)。
 
 ---
 
