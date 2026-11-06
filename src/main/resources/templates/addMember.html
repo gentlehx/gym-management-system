@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="adminCommon::common-header">
+
+</head>
+<body class="sb-nav-fixed">
+<nav th:replace="adminCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="adminCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">添加会员</h1>
+
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">数据看板</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/member/selMember}">会员管理</a></li>
+                    <li class="breadcrumb-item active">添加会员</li>
+                </ol>
+
+                <div class="aside-tips">
+                    <i class="fas fa-circle-info"></i>
+                    <div>会员账号与初始密码由系统生成：账号以 <b>2025</b> 开头，初始密码 <b>123456</b>；办卡时间固定为 <b>2025-10-08</b>，有效期一年。</div>
+                </div>
+
+                <div class="card mb-4 form-card">
+                    <div class="card-header"><i class="fas fa-user-plus me-1"></i>会员基础信息</div>
+                    <div class="card-body">
+                        <form th:action="@{/member/addMember}" method="post" name="addForm"
+                              onsubmit="return beforeSubmit(this)">
+                            <div class="form-grid">
+                                <div class="field">
+                                    <label>会员账号 / 卡号</label>
+                                    <input type="text" class="form-control" placeholder="系统自动生成" readonly>
+                                    <div class="hint">提交后由后台随机生成 9 位卡号</div>
+                                </div>
+                                <div class="field">
+                                    <label>初始密码</label>
+                                    <input type="text" class="form-control" placeholder="系统默认 123456" readonly>
+                                    <div class="hint">会员首次登录后可自行修改</div>
+                                </div>
+                                <div class="field">
+                                    <label>姓名<span class="req">*</span></label>
+                                    <input type="text" class="form-control" placeholder="会员姓名" name="memberName">
+                                </div>
+                                <div class="field">
+                                    <label>性别<span class="req">*</span></label>
+                                    <select class="form-select" name="memberGender">
+                                        <option value="男">男</option>
+                                        <option value="女">女</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>年龄<span class="req">*</span></label>
+                                    <input type="number" min="10" max="99" class="form-control" placeholder="18" name="memberAge">
+                                </div>
+                                <div class="field">
+                                    <label>联系方式<span class="req">*</span></label>
+                                    <input type="text" class="form-control" placeholder="11 位手机号" name="memberPhone">
+                                </div>
+                                <div class="field">
+                                    <label>身高（cm）<span class="req">*</span></label>
+                                    <input type="text" class="form-control" placeholder="如 175" name="memberHeight" id="h">
+                                </div>
+                                <div class="field">
+                                    <label>体重（kg）<span class="req">*</span></label>
+                                    <input type="text" class="form-control" placeholder="如 68" name="memberWeight" id="w">
+                                </div>
+                                <div class="field">
+                                    <label>购买课时<span class="req">*</span></label>
+                                    <input type="number" min="0" max="999" class="form-control" placeholder="如 48" name="cardClass">
+                                    <div class="hint">剩余课时初始等于购买课时</div>
+                                </div>
+                                <div class="field">
+                                    <label>实时 BMI</label>
+                                    <input type="text" class="form-control" id="bmi" placeholder="填写身高体重后自动计算" readonly>
+                                    <div class="hint" id="bmiTip">BMI = 体重 ÷ 身高²</div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <a class="btn btn-outline-secondary" th:href="@{/member/selMember}">取消</a>
+                                <input type="submit" class="btn btn-primary" value="保存会员">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="adminCommon::common-footer"></footer>
+    </div>
+</div>
+
+<div th:include="adminCommon::common-scripts"></div>
+<script type="text/javascript">
+    function calcBmi() {
+        let h = parseFloat(document.getElementById('h').value);
+        let w = parseFloat(document.getElementById('w').value);
+        let bmiBox = document.getElementById('bmi');
+        let tip = document.getElementById('bmiTip');
+        if (h > 0 && w > 0) {
+            let bmi = w / Math.pow(h / 100, 2);
+            bmiBox.value = bmi.toFixed(1);
+            let label = bmi < 18.5 ? '偏瘦' : (bmi < 24 ? '正常' : (bmi < 28 ? '超重' : '肥胖'));
+            tip.innerText = 'BMI ' + bmi.toFixed(1) + ' · ' + label;
+        } else {
+            bmiBox.value = '';
+            tip.innerText = 'BMI = 体重 ÷ 身高²';
+        }
+    }
+
+    document.getElementById('h').addEventListener('input', calcBmi);
+    document.getElementById('w').addEventListener('input', calcBmi);
+
+    function beforeSubmit(addForm) {
+        let phone = /^[1][3,4,5,7,8,9][0-9]{9}$/;
+        if (addForm.memberName.value == "") {
+            alert("请输入姓名！");
+            return false;
+        }
+        if (addForm.memberGender.value == "") {
+            alert("请输入性别！");
+            return false;
+        }
+        if (addForm.memberAge.value == "") {
+            alert("请输入年龄！");
+            return false;
+        }
+        if (!phone.test(addForm.memberPhone.value)) {
+            alert("手机号码错误！");
+            return false;
+        }
+        if (addForm.memberHeight.value == "") {
+            alert("请输入身高！");
+            return false;
+        }
+        if (addForm.memberWeight.value == "") {
+            alert("请输入体重！");
+            return false;
+        }
+        if (addForm.cardClass.value == "") {
+            alert("请输入购买课时！");
+            return false;
+        }
+        return true;
+    }
+</script>
+</body>
+</html>

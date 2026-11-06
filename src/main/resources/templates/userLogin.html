@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title>健身房会员中心 · 会员登录</title>
+    <link href="/static/css/styles.css" th:href="@{css/styles.css}" rel="stylesheet"/>
+    <link href="/static/css/app.css" th:href="@{css/app.css}" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"
+            crossorigin="anonymous"></script>
+</head>
+<body class="login-body">
+<div class="login-wrap">
+
+    <!-- 品牌区 -->
+    <section class="login-hero">
+        <div class="hero-brand">
+            <span class="mark"><i class="fas fa-dumbbell"></i></span>
+            <span>健身房会员中心</span>
+        </div>
+
+        <div>
+            <h2>今天也来练一会儿<br/>数据会替你记住</h2>
+            <p class="lead">签到、选课、体测、消费，你的训练轨迹都在这里。坚持 10 天连续签到，还能到前台领取运动毛巾。</p>
+
+            <div class="hero-points">
+                <div class="hero-point"><i class="fas fa-fingerprint"></i>一键签到，自动累计连续打卡天数</div>
+                <div class="hero-point"><i class="fas fa-calendar-plus"></i>在线报名团课，实时查看剩余名额</div>
+                <div class="hero-point"><i class="fas fa-heartbeat"></i>记录体重体脂，生成变化趋势图</div>
+                <div class="hero-point"><i class="fas fa-receipt"></i>消费与剩余课时随时可查</div>
+            </div>
+        </div>
+
+        <div class="hero-stats">
+            <div>
+                <b th:text="${classTotal} ?: 11">11</b>
+                <span>在售课程</span>
+            </div>
+            <div>
+                <b th:text="${memberTotal} ?: 12">12</b>
+                <span>在册会员</span>
+            </div>
+            <div>
+                <b>06:30 - 22:30</b>
+                <span>营业时间</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 登录表单 -->
+    <section class="login-panel">
+        <div class="login-card">
+            <div class="eyebrow">Member Center</div>
+            <h1>会员登录</h1>
+            <div class="sub">使用会员卡号登录，查看我的课程与体测数据</div>
+
+            <div class="login-error" th:if="${msg}" th:text="${msg}"></div>
+
+            <form th:action="@{/userLogin}" method="post" name="loginForm" onsubmit="return checkSubmit(this)">
+                <div class="field">
+                    <i class="fas fa-id-card"></i>
+                    <input class="form-control" id="inputAccount" name="memberAccount" type="text"
+                           placeholder="会员卡号 / 账号" autocomplete="username"
+                           onkeypress="return event.keyCode>=48&&event.keyCode<=57"/>
+                </div>
+                <div class="field">
+                    <i class="fas fa-lock"></i>
+                    <input class="form-control" id="inputPassword" name="memberPassword" type="password"
+                           placeholder="登录密码" autocomplete="current-password"/>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-login">登录会员中心</button>
+            </form>
+
+            <div class="login-hint">
+                <b>演示账号</b>：202509867 / 123456（张三）
+                <div class="quick">
+                    <button type="button" onclick="fill('202509867')">填入张三</button>
+                    <button type="button" onclick="fill('202500788')">填入李四</button>
+                    <button type="button" onclick="fill('202553468')">填入 Emma</button>
+                </div>
+            </div>
+
+            <div class="login-foot">
+                <span>© 2025 GymPro</span>
+                <a th:href="@{/}">管理员入口 <i class="fas fa-arrow-right ms-1"></i></a>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    function checkSubmit(f) {
+        if (f.memberAccount.value === '') {
+            alert('请输入会员卡号');
+            f.memberAccount.focus();
+            return false;
+        }
+        if (f.memberPassword.value === '') {
+            alert('请输入登录密码');
+            f.memberPassword.focus();
+            return false;
+        }
+        return true;
+    }
+
+    function fill(account) {
+        document.getElementById('inputAccount').value = account;
+        document.getElementById('inputPassword').value = '123456';
+        document.getElementById('inputPassword').focus();
+    }
+</script>
+</body>
+</html>

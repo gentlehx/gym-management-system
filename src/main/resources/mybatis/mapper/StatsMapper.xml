@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.milotnt.mapper.StatsMapper">
+
+    <select id="selectDailyIncome" resultType="java.util.LinkedHashMap">
+        SELECT DATE_FORMAT(pay_time, '%m-%d')  AS label,
+               ROUND(SUM(amount), 2)          AS num
+        FROM payment
+        WHERE pay_time BETWEEN #{start} AND #{end}
+        GROUP BY pay_time
+        ORDER BY pay_time
+    </select>
+
+    <select id="selectIncomeByTypeRange" resultType="java.util.LinkedHashMap">
+        SELECT pay_type             AS label,
+               ROUND(SUM(amount), 2) AS num
+        FROM payment
+        WHERE pay_time BETWEEN #{start} AND #{end}
+        GROUP BY pay_type
+        ORDER BY num DESC
+    </select>
+
+    <select id="selectCheckInByRange" resultType="java.util.LinkedHashMap">
+        SELECT DATE_FORMAT(check_in_date, '%m-%d') AS label,
+               COUNT(*)                            AS num
+        FROM check_in
+        WHERE check_in_date BETWEEN #{start} AND #{end}
+        GROUP BY check_in_date
+        ORDER BY check_in_date
+    </select>
+
+    <select id="selectNewMemberByRange" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM member
+        WHERE card_time BETWEEN #{start} AND #{end}
+    </select>
+
+    <select id="selectCheckInCountByRange" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM check_in
+        WHERE check_in_date BETWEEN #{start} AND #{end}
+    </select>
+
+    <select id="selectCheckInTrend" resultType="java.util.LinkedHashMap">
+        SELECT DATE_FORMAT(check_in_date, '%m-%d') AS label,
+               COUNT(*)                             AS num
+        FROM check_in
+        GROUP BY check_in_date
+        ORDER BY check_in_date
+    </select>
+
+    <select id="selectClassRank" resultType="java.util.LinkedHashMap">
+        SELECT class_name AS label,
+               COUNT(*)   AS num
+        FROM class_order
+        GROUP BY class_name
+        ORDER BY num DESC
+    </select>
+
+    <select id="selectIncomeByType" resultType="java.util.LinkedHashMap">
+        SELECT pay_type           AS label,
+               ROUND(SUM(amount), 2) AS num
+        FROM payment
+        GROUP BY pay_type
+        ORDER BY num DESC
+    </select>
+
+    <select id="selectEquipmentStatus" resultType="java.util.LinkedHashMap">
+        SELECT equipment_status AS label,
+               COUNT(*)         AS num
+        FROM equipment
+        GROUP BY equipment_status
+    </select>
+
+    <select id="selectPayWayStat" resultType="java.util.LinkedHashMap">
+        SELECT pay_way            AS label,
+               ROUND(SUM(amount), 2) AS num
+        FROM payment
+        GROUP BY pay_way
+        ORDER BY num DESC
+    </select>
+
+    <select id="selectOrderTotal" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM class_order
+    </select>
+
+    <select id="selectEquipmentTotal" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM equipment
+    </select>
+
+    <select id="selectEquipmentNormal" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM equipment
+        WHERE equipment_status = '正常'
+    </select>
+
+    <select id="selectAvgLeftClass" resultType="java.lang.Double">
+        SELECT ROUND(AVG(card_next_class), 1)
+        FROM member
+    </select>
+
+    <select id="selectBusinessDate" resultType="java.lang.String">
+        SELECT DATE_FORMAT(MAX(check_in_date), '%Y-%m-%d')
+        FROM check_in
+    </select>
+
+</mapper>

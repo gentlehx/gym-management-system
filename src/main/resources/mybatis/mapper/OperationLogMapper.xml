@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.milotnt.mapper.OperationLogMapper">
+
+    <!-- role 是 MySQL 8 的保留字，所有列名统一加反引号 -->
+    <select id="findAll" resultType="operationLog">
+        SELECT `log_id`, `operator`, `role`, `action`, `uri`, `detail`, `ip`, `created_at`
+        FROM operation_log
+        ORDER BY log_id DESC
+        LIMIT 500
+    </select>
+
+    <select id="selectByKeyword" parameterType="java.lang.String" resultType="operationLog">
+        SELECT `log_id`, `operator`, `role`, `action`, `uri`, `detail`, `ip`, `created_at`
+        FROM operation_log
+        <where>
+            <if test="_parameter != null and _parameter != ''">
+                `operator` LIKE CONCAT('%', #{_parameter}, '%')
+                OR `action` LIKE CONCAT('%', #{_parameter}, '%')
+                OR `detail` LIKE CONCAT('%', #{_parameter}, '%')
+            </if>
+        </where>
+        ORDER BY log_id DESC
+        LIMIT 500
+    </select>
+
+    <insert id="insertLog" parameterType="operationLog" useGeneratedKeys="true" keyProperty="logId">
+        INSERT INTO operation_log (`operator`, `role`, `action`, `uri`, `detail`, `ip`, `created_at`)
+        VALUES (#{operator}, #{role}, #{action}, #{uri}, #{detail}, #{ip}, #{createdAt})
+    </insert>
+
+    <delete id="deleteAll">
+        DELETE
+        FROM operation_log
+    </delete>
+
+    <select id="selectTotalCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM operation_log
+    </select>
+
+</mapper>

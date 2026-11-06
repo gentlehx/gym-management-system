@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="userCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="userCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="userCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">个人信息</h1>
+
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/user/toUserMain}">我的主页</a></li>
+                    <li class="breadcrumb-item active">个人信息</li>
+                </ol>
+
+                <div class="row g-3">
+                    <div class="col-xl-4">
+                        <div class="card mb-3">
+                            <div class="card-body text-center" style="padding:26px 20px">
+                                <div class="d-flex justify-content-center">
+                                    <div class="avatar avatar-lg"
+                                         th:text="${#strings.substring(member.memberName,0,1)}">会</div>
+                                </div>
+                                <div style="font-size:19px;font-weight:700;margin-top:12px"
+                                     th:text="${member.memberName}">会员姓名</div>
+                                <div style="color:var(--muted);font-size:12.5px;margin-top:3px"
+                                     th:text="'卡号 ' + ${member.memberAccount}">卡号</div>
+
+                                <div style="margin-top:14px">
+                                    <span class="badge bg-success" th:if="${cardStatus == '有效'}">会员卡有效</span>
+                                    <span class="badge bg-warning" th:if="${cardStatus == '即将到期'}">30 天内到期</span>
+                                    <span class="badge bg-danger" th:if="${cardStatus == '已到期'}">会员卡已到期</span>
+                                </div>
+
+                                <div style="text-align:left;margin-top:18px">
+                                    <div class="kv">
+                                        <span>办卡时间</span>
+                                        <span th:text="${member.cardTime}">2025-10-08</span>
+                                    </div>
+                                    <div class="kv">
+                                        <span>到期日</span>
+                                        <span th:text="${member.cardEndDate}">2026-10-08</span>
+                                    </div>
+                                    <div class="kv">
+                                        <span>累计签到</span>
+                                        <span><b th:text="${checkInCount}">0</b> 次</span>
+                                    </div>
+                                </div>
+
+                                <a class="btn btn-primary w-100" style="margin-top:16px"
+                                   th:href="@{/user/toUpdateInfo}">
+                                    <i class="fas fa-pen me-1"></i>编辑个人信息
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-8">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <div class="stat">
+                                    <div class="stat-top">
+                                        <span class="stat-label">购买课时</span>
+                                        <span class="stat-icon"><i class="fas fa-ticket"></i></span>
+                                    </div>
+                                    <div class="stat-value num" th:text="${member.cardClass}">48</div>
+                                    <div class="stat-foot"><i class="fas fa-cart-shopping"></i> 累计购买</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat green">
+                                    <div class="stat-top">
+                                        <span class="stat-label">剩余课时</span>
+                                        <span class="stat-icon"><i class="fas fa-hourglass-half"></i></span>
+                                    </div>
+                                    <div class="stat-value num" th:text="${member.cardNextClass}">48</div>
+                                    <div class="stat-foot"><i class="fas fa-circle-check"></i> 可用于预约课程</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat sky">
+                                    <div class="stat-top">
+                                        <span class="stat-label">已消耗</span>
+                                        <span class="stat-icon"><i class="fas fa-fire"></i></span>
+                                    </div>
+                                    <div class="stat-value num"><span th:text="${usedClass}">0</span><small> 节</small></div>
+                                    <div class="stat-foot"><i class="fas fa-chart-simple"></i> 占比 <b th:text="${usedPercent}">0</b>%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-3">
+                            <div class="card-header"><i class="fas fa-id-card me-1"></i>基础资料</div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="kv"><span>性别</span><span th:text="${member.memberGender}">男</span></div>
+                                        <div class="kv"><span>年龄</span><span th:text="${member.memberAge}">25</span></div>
+                                        <div class="kv"><span>联系方式</span><span th:text="${member.memberPhone}">13800000000</span></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="kv"><span>身高</span><span th:text="${member.memberHeight} + ' cm'">175 cm</span></div>
+                                        <div class="kv"><span>体重</span><span th:text="${member.memberWeight} + ' kg'">68 kg</span></div>
+                                        <div class="kv"><span>登录密码</span><span>••••••</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header"><i class="fas fa-gauge-high me-1"></i>课时使用进度</div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2" style="font-size:12.5px;color:var(--muted)">
+                                    <span>已使用 <b th:text="${usedClass}">0</b> 节 / 共 <b th:text="${member.cardClass}">48</b> 节</span>
+                                    <span th:text="${usedPercent} + '%'">0%</span>
+                                </div>
+                                <div class="progress" style="height:10px">
+                                    <div class="progress-bar" role="progressbar"
+                                         th:style="'width:' + ${usedPercent} + '%'"></div>
+                                </div>
+                                <div class="small" style="color:var(--muted-2);margin-top:10px">
+                                    <i class="fas fa-circle-info me-1"></i>课时不足 10 节时，建议提前续费以免影响约课。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="userCommon::common-footer"></footer>
+    </div>
+</div>
+
+<div th:include="userCommon::common-scripts"></div>
+</body>
+</html>

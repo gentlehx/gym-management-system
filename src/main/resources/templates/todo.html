@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="adminCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="adminCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="adminCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">待办中心</h1>
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/toAdminMain}">主页</a></li>
+                    <li class="breadcrumb-item active">待办中心</li>
+                </ol>
+
+                <div class="row">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat rose">
+                            <div class="stat-top">
+                                <div class="stat-label">会员卡到期</div>
+                                <div class="stat-icon"><i class="fas fa-id-card"></i></div>
+                            </div>
+                            <div class="stat-value"><span
+                                    th:text="${#lists.size(expiredMembers) + #lists.size(expiringMembers)}">3</span><small>人</small>
+                            </div>
+                            <div class="stat-foot">已到期 <span th:text="${#lists.size(expiredMembers)}">1</span> ·
+                                30 天内 <span th:text="${#lists.size(expiringMembers)}">2</span></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat amber">
+                            <div class="stat-top">
+                                <div class="stat-label">课时不足</div>
+                                <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+                            </div>
+                            <div class="stat-value"><span th:text="${#lists.size(lowClassMembers)}">0</span><small>人</small>
+                            </div>
+                            <div class="stat-foot">剩余课时 ≤ 10 节</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat">
+                            <div class="stat-top">
+                                <div class="stat-label">待处理维修</div>
+                                <div class="stat-icon"><i class="fas fa-tools"></i></div>
+                            </div>
+                            <div class="stat-value"><span th:text="${#lists.size(pendingMaintain)}">4</span><small>单</small>
+                            </div>
+                            <div class="stat-foot">含待维修与维修中</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat green">
+                            <div class="stat-top">
+                                <div class="stat-label">今日课程</div>
+                                <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
+                            </div>
+                            <div class="stat-value"><span th:text="${#lists.size(todayClasses)}">1</span><small>门</small>
+                            </div>
+                            <div class="stat-foot" th:text="'业务日 ' + ${today}">业务日 2025-10-10</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- 会员卡到期 -->
+                    <div class="col-xl-6">
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-id-card me-1"></i>会员卡到期提醒</span>
+                                <a class="small" th:href="@{/member/selMember}">会员管理</a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-sm mb-0">
+                                        <thead>
+                                        <tr>
+                                            <th>会员</th>
+                                            <th>到期日</th>
+                                            <th>状态</th>
+                                            <th>操作</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="m:${expiredMembers}">
+                                            <td>
+                                                <a class="text-decoration-none" th:href="@{/member/detail(memberAccount=${m.memberAccount})}"
+                                                   th:text="${m.memberName}">张三</a>
+                                            </td>
+                                            <td class="small" th:text="${m.cardEndDate}">2025-10-05</td>
+                                            <td><span class="badge bg-danger">已到期</span></td>
+                                            <td><a class="small" th:href="@{/payment/selPayment}">续费</a></td>
+                                        </tr>
+                                        <tr th:each="m:${expiringMembers}">
+                                            <td>
+                                                <a class="text-decoration-none" th:href="@{/member/detail(memberAccount=${m.memberAccount})}"
+                                                   th:text="${m.memberName}">王五</a>
+                                            </td>
+                                            <td class="small" th:text="${m.cardEndDate}">2025-10-28</td>
+                                            <td><span class="badge bg-warning">即将到期</span></td>
+                                            <td><a class="small" th:href="@{/payment/selPayment}">续费</a></td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(expiredMembers) and #lists.isEmpty(expiringMembers)}">
+                                            <td colspan="4">
+                                                <div class="empty"><i class="far fa-smile"></i>
+                                                    <p>会员卡都在有效期内</p></div>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 课时不足 -->
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-hourglass-half me-1"></i>课时余量提醒（按剩余课时升序）</span>
+                                <a class="small" th:href="@{/payment/selPayment}">去收费</a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-sm mb-0">
+                                        <thead>
+                                        <tr>
+                                            <th>会员</th>
+                                            <th>已购</th>
+                                            <th>剩余</th>
+                                            <th>操作</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="m:${lowClassRank}">
+                                            <td>
+                                                <a class="text-decoration-none" th:href="@{/member/detail(memberAccount=${m.memberAccount})}"
+                                                   th:text="${m.memberName}">张三</a>
+                                            </td>
+                                            <td th:text="${m.cardClass}">30</td>
+                                            <td>
+                                                <span class="badge"
+                                                      th:classappend="${m.cardNextClass <= 10} ? 'bg-danger' : 'bg-light text-dark'"
+                                                      th:text="${m.cardNextClass} + ' 节'">5 节</span>
+                                            </td>
+                                            <td><a class="small" th:href="@{/payment/selPayment}">续费</a></td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(lowClassRank)}">
+                                            <td colspan="4">
+                                                <div class="empty"><i class="fas fa-circle-check"></i>
+                                                    <p>暂无会员数据</p></div>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 待维修 + 今日课程 -->
+                    <div class="col-xl-6">
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-tools me-1"></i>待处理维修单</span>
+                                <a class="small" th:href="@{/maintain/selMaintain}">器材维修</a>
+                            </div>
+                            <div class="card-body">
+                                <div class="timeline" th:if="${not #lists.isEmpty(pendingMaintain)}">
+                                    <div class="timeline-item is-now" th:each="r:${pendingMaintain}">
+                                        <div class="d-flex justify-content-between">
+                                            <b th:text="${r.equipmentName}">跑步机1</b>
+                                            <span class="badge"
+                                                  th:classappend="${r.status == '维修中'} ? 'bg-info' : 'bg-warning'"
+                                                  th:text="${r.status}">维修中</span>
+                                        </div>
+                                        <div class="small text-muted" th:text="${r.faultDesc}">跑带跑偏</div>
+                                        <div class="small text-muted">
+                                            <span th:text="${r.maintainDate}">2025-10-05</span> ·
+                                            处理人 <span th:text="${r.handler}">厂家售后</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="empty" th:if="${#lists.isEmpty(pendingMaintain)}">
+                                    <i class="far fa-check-circle"></i>
+                                    <p>所有器材状态正常</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-calendar-day me-1"></i>今日课程安排</span>
+                                <a class="small" th:href="@{/class/selClass}">课程管理</a>
+                            </div>
+                            <div class="card-body">
+                                <div class="timeline" th:if="${not #lists.isEmpty(todayClasses)}">
+                                    <div class="timeline-item is-now" th:each="c:${todayClasses}">
+                                        <div class="d-flex justify-content-between">
+                                            <b th:text="${c.className}">健美操</b>
+                                            <span class="badge bg-primary"
+                                                  th:text="${c.capacity} + ' 人'">20 人</span>
+                                        </div>
+                                        <div class="small text-muted">
+                                            <span th:text="${c.classBegin}">2025年10月10日 18:00</span> ·
+                                            <span th:text="${c.classroom}">操房</span> ·
+                                            <span th:text="${c.coach}">教练</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="empty" th:if="${#lists.isEmpty(todayClasses)}">
+                                    <i class="far fa-calendar"></i>
+                                    <p>今天没有排课</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="adminCommon::common-footer"></footer>
+    </div>
+</div>
+
+<div th:include="adminCommon::common-scripts"></div>
+</body>
+</html>

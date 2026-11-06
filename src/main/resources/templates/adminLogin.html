@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title>健身房运营管理系统 · 管理员登录</title>
+    <link href="/static/css/styles.css" th:href="@{css/styles.css}" rel="stylesheet"/>
+    <link href="/static/css/app.css" th:href="@{css/app.css}" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"
+            crossorigin="anonymous"></script>
+</head>
+<body class="login-body">
+<div class="login-wrap">
+
+    <!-- 品牌区 -->
+    <section class="login-hero">
+        <div class="hero-brand">
+            <span class="mark"><i class="fas fa-dumbbell"></i></span>
+            <span>健身房运营管理系统</span>
+        </div>
+
+        <div>
+            <h2>把会员、课程、收费<br/>和设备，放在一张桌子上管</h2>
+            <p class="lead">从办卡到续费、从排课到签到、从体测到维修，一套系统覆盖门店日常运营的每个环节。</p>
+
+            <div class="hero-points">
+                <div class="hero-point"><i class="fas fa-chart-line"></i>实时经营看板，签到、收入、报名一屏掌握</div>
+                <div class="hero-point"><i class="fas fa-calendar-check"></i>课程名额与课时自动核销，避免超卖与错账</div>
+                <div class="hero-point"><i class="fas fa-id-card"></i>会员卡到期与课时余量自动预警</div>
+                <div class="hero-point"><i class="fas fa-file-export"></i>会员、收费、签到、体测数据一键导出</div>
+            </div>
+        </div>
+
+        <div class="hero-stats">
+            <div>
+                <b th:text="${memberTotal} ?: 12">12</b>
+                <span>在册会员</span>
+            </div>
+            <div>
+                <b th:text="${classTotal} ?: 11">11</b>
+                <span>在售课程</span>
+            </div>
+            <div>
+                <b th:text="${checkInTotal} ?: 60">60</b>
+                <span>累计签到</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 登录表单 -->
+    <section class="login-panel">
+        <div class="login-card">
+            <div class="eyebrow">Admin Console</div>
+            <h1>管理员登录</h1>
+            <div class="sub">请使用门店管理账号登录后台</div>
+
+            <div class="login-error" th:if="${msg}" th:text="${msg}"></div>
+
+            <form th:action="@{/adminLogin}" method="post" name="loginForm" onsubmit="return checkSubmit(this)">
+                <div class="field">
+                    <i class="fas fa-user"></i>
+                    <input class="form-control" id="inputAccount" name="adminAccount" type="text"
+                           placeholder="管理员账号" autocomplete="username"
+                           onkeypress="return event.keyCode>=48&&event.keyCode<=57"/>
+                </div>
+                <div class="field">
+                    <i class="fas fa-lock"></i>
+                    <input class="form-control" id="inputPassword" name="adminPassword" type="password"
+                           placeholder="登录密码" autocomplete="current-password"/>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-login">登录后台</button>
+            </form>
+
+            <div class="login-hint">
+                <b>演示账号</b>：1001 / 123456
+                <div class="quick">
+                    <button type="button" onclick="fill('1001')">填入 1001</button>
+                    <button type="button" onclick="fill('1002')">填入 1002</button>
+                    <button type="button" onclick="fill('1003')">填入 1003</button>
+                </div>
+            </div>
+
+            <div class="login-foot">
+                <span>© 2025 GymPro</span>
+                <a th:href="@{/toUserLogin}">我是会员，去会员端 <i class="fas fa-arrow-right ms-1"></i></a>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    function checkSubmit(f) {
+        if (f.adminAccount.value === '') {
+            alert('请输入管理员账号');
+            f.adminAccount.focus();
+            return false;
+        }
+        if (f.adminPassword.value === '') {
+            alert('请输入登录密码');
+            f.adminPassword.focus();
+            return false;
+        }
+        return true;
+    }
+
+    function fill(account) {
+        document.getElementById('inputAccount').value = account;
+        document.getElementById('inputPassword').value = '123456';
+        document.getElementById('inputPassword').focus();
+    }
+</script>
+</body>
+</html>

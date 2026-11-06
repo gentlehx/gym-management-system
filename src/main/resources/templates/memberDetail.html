@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="adminCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="adminCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="adminCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">会员档案</h1>
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/toAdminMain}">主页</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/member/selMember}">会员管理</a></li>
+                    <li class="breadcrumb-item active" th:text="${member.memberName}">张三</li>
+                </ol>
+
+                <div class="row">
+                    <!-- 资料卡 -->
+                    <div class="col-xl-4">
+                        <div class="card mb-4">
+                            <div class="card-body text-center pt-4">
+                                <div class="avatar avatar-lg mx-auto mb-3"
+                                     th:text="${#strings.substring(member.memberName,0,1)}">张</div>
+                                <h5 class="mb-1" th:text="${member.memberName}">张三</h5>
+                                <div class="small text-muted mb-2"
+                                     th:text="'卡号 ' + ${member.memberAccount}">卡号 202509867</div>
+                                <span class="badge bg-success" th:if="${cardStatus == '有效'}">会员卡有效</span>
+                                <span class="badge bg-warning" th:if="${cardStatus == '即将到期'}">会员卡即将到期</span>
+                                <span class="badge bg-danger" th:if="${cardStatus == '已到期'}">会员卡已到期</span>
+
+                                <div class="text-start mt-4">
+                                    <div class="kv"><span>手机号</span><span th:text="${member.memberPhone}">135</span></div>
+                                    <div class="kv"><span>性别 / 年龄</span>
+                                        <span th:text="${member.memberGender} + ' / ' + ${member.memberAge}">女 / 24</span></div>
+                                    <div class="kv"><span>身高 / 体重</span>
+                                        <span th:text="${member.memberHeight} + 'cm / ' + ${member.memberWeight} + 'kg'">182cm / 60kg</span></div>
+                                    <div class="kv"><span>办卡时间</span><span th:text="${member.cardTime}">2025-10-01</span>
+                                    </div>
+                                    <div class="kv"><span>会员卡到期</span><span th:text="${member.cardEndDate}">2025-10-05</span>
+                                    </div>
+                                </div>
+
+                                <div class="text-start mt-3">
+                                    <div class="d-flex justify-content-between small mb-1">
+                                        <span class="text-muted">课时使用进度</span>
+                                        <span>已用 <b th:text="${usedClass}">0</b> / <span
+                                                th:text="${member.cardClass}">40</span> 节</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar" th:style="'width:' + ${usedPercent} + '%'"></div>
+                                    </div>
+                                    <div class="small text-muted mt-2">
+                                        剩余 <b class="text-primary" th:text="${leftClass}">40</b> 课时
+                                    </div>
+                                </div>
+
+                                <div class="d-grid gap-2 mt-4">
+                                    <a class="btn btn-primary" th:href="@{/payment/selPayment}">办理续费</a>
+                                    <a class="btn btn-outline-secondary"
+                                       th:href="@{/member/toUpdateMember(memberAccount=${member.memberAccount})}">编辑资料</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 概览 + 明细 -->
+                    <div class="col-xl-8">
+                        <div class="row">
+                            <div class="col-md-6 col-xl-3">
+                                <div class="stat">
+                                    <div class="stat-top">
+                                        <div class="stat-label">累计签到</div>
+                                        <div class="stat-icon"><i class="fas fa-door-open"></i></div>
+                                    </div>
+                                    <div class="stat-value"><span th:text="${checkInCount}">10</span><small>次</small>
+                                    </div>
+                                    <div class="stat-foot">业务日 <span th:text="${today}">2025-10-10</span></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-3">
+                                <div class="stat green">
+                                    <div class="stat-top">
+                                        <div class="stat-label">消费合计</div>
+                                        <div class="stat-icon"><i class="fas fa-coins"></i></div>
+                                    </div>
+                                    <div class="stat-value">¥<span
+                                            th:text="${#numbers.formatDecimal(payTotal,1,'COMMA',0,'POINT')}">3,860</span>
+                                    </div>
+                                    <div class="stat-foot"><span th:text="${#lists.size(paymentList)}">3</span> 笔消费</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-3">
+                                <div class="stat sky">
+                                    <div class="stat-top">
+                                        <div class="stat-label">已报课程</div>
+                                        <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                                    </div>
+                                    <div class="stat-value"><span th:text="${#lists.size(classOrderList)}">2</span><small>门</small>
+                                    </div>
+                                    <div class="stat-foot">课时每门扣 1 节</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-3">
+                                <div class="stat amber">
+                                    <div class="stat-top">
+                                        <div class="stat-label">体测记录</div>
+                                        <div class="stat-icon"><i class="fas fa-heartbeat"></i></div>
+                                    </div>
+                                    <div class="stat-value"><span th:text="${#lists.size(bodyTestList)}">3</span><small>次</small>
+                                    </div>
+                                    <div class="stat-foot">
+                                        <span th:if="${not #lists.isEmpty(bodyTestList)}"
+                                              th:text="'最新 ' + ${bodyTestList[#lists.size(bodyTestList)-1].weight} + 'kg'">58kg</span>
+                                        <span th:if="${#lists.isEmpty(bodyTestList)}">暂无体测</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header pb-0 border-0">
+                                <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                                    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab"
+                                                            href="#tab-checkin">签到记录</a></li>
+                                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab"
+                                                            href="#tab-payment">消费记录</a></li>
+                                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab"
+                                                            href="#tab-body">体测趋势</a></li>
+                                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab"
+                                                            href="#tab-class">已报课程</a></li>
+                                </ul>
+                            </div>
+                            <div class="card-body">
+                                <div class="tab-content">
+                                    <div class="tab-pane fade show active" id="tab-checkin">
+                                        <div style="max-height: 320px; overflow-y: auto">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                <tr>
+                                                    <th>日期</th>
+                                                    <th>时间</th>
+                                                    <th>类型</th>
+                                                    <th>备注</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr th:each="c:${checkInList}">
+                                                    <td th:text="${c.checkInDate}">2025-10-10</td>
+                                                    <td th:text="${c.checkInTime}">19:20</td>
+                                                    <td><span class="badge bg-light text-dark"
+                                                              th:text="${c.checkInType}">日常健身</span></td>
+                                                    <td class="small text-muted" th:text="${c.remark}"></td>
+                                                </tr>
+                                                <tr th:if="${#lists.isEmpty(checkInList)}">
+                                                    <td colspan="4">
+                                                        <div class="empty"><i class="far fa-calendar"></i>
+                                                            <p>还没有签到记录</p></div>
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div class="tab-pane fade" id="tab-payment">
+                                        <div style="max-height: 320px; overflow-y: auto">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                <tr>
+                                                    <th>日期</th>
+                                                    <th>类型</th>
+                                                    <th>方式</th>
+                                                    <th>金额</th>
+                                                    <th>课时</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr th:each="p:${paymentList}">
+                                                    <td th:text="${p.payTime}">2025-10-08</td>
+                                                    <td th:text="${p.payType}">办卡</td>
+                                                    <td th:text="${p.payWay}">微信</td>
+                                                    <td class="fw-bold"
+                                                        th:text="'¥' + ${#numbers.formatDecimal(p.amount,1,'COMMA',2,'POINT')}">¥1980</td>
+                                                    <td th:text="${p.classCount}">30</td>
+                                                </tr>
+                                                <tr th:if="${#lists.isEmpty(paymentList)}">
+                                                    <td colspan="5">
+                                                        <div class="empty"><i class="fas fa-receipt"></i>
+                                                            <p>暂无消费记录</p></div>
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div class="tab-pane fade" id="tab-body">
+                                        <div th:if="${not #lists.isEmpty(bodyTestList)}">
+                                            <div style="height: 240px"><canvas id="bodyChart"></canvas></div>
+                                            <table class="table table-sm mt-3">
+                                                <thead>
+                                                <tr>
+                                                    <th>日期</th>
+                                                    <th>体重(kg)</th>
+                                                    <th>体脂(%)</th>
+                                                    <th>肌肉(kg)</th>
+                                                    <th>BMI</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr th:each="b:${bodyTestList}">
+                                                    <td th:text="${b.testDate}">2025-10-08</td>
+                                                    <td th:text="${b.weight}">60.2</td>
+                                                    <td th:text="${b.bodyFat}">19.2</td>
+                                                    <td th:text="${b.muscle}">23.7</td>
+                                                    <td th:text="${b.bmi}">18.2</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="empty" th:if="${#lists.isEmpty(bodyTestList)}">
+                                            <i class="fas fa-heartbeat"></i>
+                                            <p>该会员还没有体测记录</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="tab-pane fade" id="tab-class">
+                                        <table class="table table-sm">
+                                            <thead>
+                                            <tr>
+                                                <th>课程</th>
+                                                <th>教练</th>
+                                                <th>上课时间</th>
+                                                <th>操作</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr th:each="o:${classOrderList}">
+                                                <td th:text="${o.className}">瑜伽</td>
+                                                <td th:text="${o.coach}">瑜伽教练</td>
+                                                <td th:text="${o.classBegin}">2025年10月2日 10:20</td>
+                                                <td>
+                                                    <a class="small" th:href="@{/class/selClassOrder(classId=${o.classId})}">报名名单</a>
+                                                </td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(classOrderList)}">
+                                                <td colspan="4">
+                                                    <div class="empty"><i class="fas fa-calendar-plus"></i>
+                                                        <p>还没有报名课程</p></div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="adminCommon::common-footer"></footer>
+    </div>
+</div>
+
+<div th:include="adminCommon::common-scripts"></div>
+<div id="bodyData" th:text="${bodyTestJson}" style="display:none"></div>
+
+<script>
+    (function () {
+        var el = document.getElementById('bodyData');
+        var data = [];
+        try {
+            data = JSON.parse(el.textContent || '[]');
+        } catch (e) {
+            data = [];
+        }
+        var canvas = document.getElementById('bodyChart');
+        if (!canvas || !data.length) return;
+
+        new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: data.map(function (x) { return x.testDate; }),
+                datasets: [
+                    {
+                        label: '体重(kg)',
+                        data: data.map(function (x) { return x.weight; }),
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79,70,229,.10)',
+                        fill: true,
+                        lineTension: .3
+                    },
+                    {
+                        label: '体脂率(%)',
+                        data: data.map(function (x) { return x.bodyFat; }),
+                        borderColor: '#ef4444',
+                        lineTension: .3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: {position: 'bottom', labels: {boxWidth: 10, fontSize: 11}},
+                scales: {
+                    yAxes: [{ticks: {beginAtZero: false}}],
+                    xAxes: [{gridLines: {display: false}}]
+                }
+            }
+        });
+    })();
+</script>
+</body>
+</html>

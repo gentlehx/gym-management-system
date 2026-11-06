@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="userCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="userCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="userCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">签到打卡</h1>
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/toUserMain}">主页</a></li>
+                    <li class="breadcrumb-item active">签到打卡</li>
+                </ol>
+
+                <div class="alert alert-success alert-dismissible fade show" th:if="${msg}">
+                    <i class="fas fa-check-circle me-1"></i><span th:text="${msg}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-5">
+                        <div class="card mb-4">
+                            <div class="card-body text-center py-5">
+                                <div class="display-4 mb-3">
+                                    <i class="fas fa-door-open text-primary" th:if="${!checkInToday}"></i>
+                                    <i class="fas fa-check-circle text-success" th:if="${checkInToday}"></i>
+                                </div>
+                                <h5 th:text="${checkInToday} ? '今天已经签到啦' : '今天还没有签到'">今天还没有签到</h5>
+                                <p class="text-muted small" th:text="'业务日期：' + ${businessDate}">业务日期</p>
+
+                                <form th:action="@{/user/doCheckIn}" method="post" th:if="${!checkInToday}">
+                                    <div class="mb-3 d-flex justify-content-center gap-2">
+                                        <select class="form-select w-auto" name="checkInType">
+                                            <option value="日常健身">日常健身</option>
+                                            <option value="课程签到">课程签到</option>
+                                            <option value="私教课">私教课</option>
+                                            <option value="体测">体测</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-primary px-4">
+                                            <i class="fas fa-fingerprint me-1"></i>立即签到
+                                        </button>
+                                    </div>
+                                </form>
+                                <button class="btn btn-outline-secondary px-4" th:if="${checkInToday}" disabled>
+                                    今日已签到
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-7">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="card bg-primary text-white mb-4">
+                                    <div class="card-body">
+                                        <div class="small">累计签到</div>
+                                        <div class="fs-3 fw-bold" th:text="${checkInCount} + ' 次'">8 次</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card bg-success text-white mb-4">
+                                    <div class="card-body">
+                                        <div class="small">连续签到</div>
+                                        <div class="fs-3 fw-bold" th:text="${keepDays} + ' 天'">3 天</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header"><i class="fas fa-history me-1"></i>我的签到记录</div>
+                            <div class="card-body p-0" style="max-height: 330px; overflow-y: auto">
+                                <table class="table table-sm mb-0">
+                                    <thead>
+                                    <tr>
+                                        <th>日期</th>
+                                        <th>时间</th>
+                                        <th>类型</th>
+                                        <th>备注</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="c:${checkInList}">
+                                        <td th:text="${c.checkInDate}">2025-10-10</td>
+                                        <td th:text="${c.checkInTime}">19:20</td>
+                                        <td><span class="badge bg-light text-dark" th:text="${c.checkInType}">日常健身</span></td>
+                                        <td class="small text-muted" th:text="${c.remark}"></td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(checkInList)}">
+                                        <td colspan="4" class="text-center text-muted py-4">还没有签到记录</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="userCommon::common-footer"></footer>
+    </div>
+</div>
+
+<div th:include="userCommon::common-scripts"></div>
+</body>
+</html>

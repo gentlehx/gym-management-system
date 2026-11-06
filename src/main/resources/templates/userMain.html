@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="userCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="userCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="userCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4" th:text="${member.memberName} + '的主页'"></h1>
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item active">主页</li>
+                </ol>
+
+                <div class="row">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card bg-primary text-white mb-4">
+                            <div class="card-body">
+                                <div class="small">剩余课时</div>
+                                <div class="fs-3 fw-bold" th:text="${member.cardNextClass} + ' 节'">30 节</div>
+                            </div>
+                            <div class="card-footer small">
+                                已购 <span th:text="${member.cardClass}">30</span> 节 ·
+                                <a class="text-white" th:href="@{/user/toApplyClass}">去选课</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card bg-success text-white mb-4">
+                            <div class="card-body">
+                                <div class="small">累计签到</div>
+                                <div class="fs-3 fw-bold" th:text="${checkInCount} + ' 次'">8 次</div>
+                            </div>
+                            <div class="card-footer small d-flex justify-content-between">
+                                <span th:text="${checkInToday} ? '今日已签到' : '今日还未签到'"></span>
+                                <a class="text-white" th:href="@{/user/toCheckIn}">去签到</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card bg-warning text-white mb-4">
+                            <div class="card-body">
+                                <div class="small">连续签到</div>
+                                <div class="fs-3 fw-bold" th:text="${keepDays} + ' 天'">3 天</div>
+                            </div>
+                            <div class="card-footer small">连续签到 10 天可领运动毛巾</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card bg-danger text-white mb-4">
+                            <div class="card-body">
+                                <div class="small">消费合计</div>
+                                <div class="fs-3 fw-bold">
+                                    ¥<span th:text="${#numbers.formatDecimal(myPayTotal,1,'COMMA',0,'POINT')}">1,980</span>
+                                </div>
+                            </div>
+                            <div class="card-footer small">
+                                已报 <span th:text="${myClassCount}">2</span> 门课程 ·
+                                <a class="text-white" th:href="@{/user/toMyPayment}">消费明细</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- 左：快捷操作 + 我的课程 -->
+                    <div class="col-xl-7">
+                        <div class="card mb-4">
+                            <div class="card-header"><i class="fas fa-bolt me-1"></i>快捷操作</div>
+                            <div class="card-body d-flex flex-wrap gap-2">
+                                <a class="btn btn-outline-primary" th:href="@{/user/toCheckIn}">
+                                    <i class="fas fa-door-open me-1"></i>今日签到
+                                </a>
+                                <a class="btn btn-outline-success" th:href="@{/user/toApplyClass}">
+                                    <i class="fas fa-calendar-plus me-1"></i>报名选课
+                                </a>
+                                <a class="btn btn-outline-secondary" th:href="@{/user/toUserClass}">
+                                    <i class="fas fa-list me-1"></i>我的课程
+                                </a>
+                                <a class="btn btn-outline-warning" th:href="@{/user/toMyPayment}">
+                                    <i class="fas fa-receipt me-1"></i>消费记录
+                                </a>
+                                <a class="btn btn-outline-info" th:href="@{/user/toBodyTest}">
+                                    <i class="fas fa-weight-scale me-1"></i>体测记录
+                                </a>
+                                <a class="btn btn-outline-dark" th:href="@{/user/toNotice}">
+                                    <i class="fas fa-bullhorn me-1"></i>场馆公告
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-calendar-check me-1"></i>我的课程</span>
+                                <a class="small" th:href="@{/user/toUserClass}">全部课程</a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive" th:if="${not #lists.isEmpty(myClassList)}">
+                                    <table class="table table-sm mb-0">
+                                        <thead>
+                                        <tr>
+                                            <th>课程</th>
+                                            <th>时间</th>
+                                            <th>教练</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="c,st:${myClassList}" th:if="${st.index < 5}">
+                                            <td style="font-weight:600" th:text="${c.className}">课程</td>
+                                            <td class="small text-muted" th:text="${c.classBegin}">时间</td>
+                                            <td th:text="${c.coach}">教练</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="empty" th:if="${#lists.isEmpty(myClassList)}">
+                                    <i class="fas fa-calendar-xmark"></i>
+                                    <p>还没有报名课程，去看看有什么好课</p>
+                                    <a class="btn btn-primary btn-sm" th:href="@{/user/toApplyClass}">立即约课</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右：公告 + 推荐 -->
+                    <div class="col-xl-5">
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-bullhorn me-1"></i>最新公告</span>
+                                <a class="small" th:href="@{/user/toNotice}">全部</a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="list-group list-group-flush" th:each="n:${noticeList}">
+                                    <div class="list-group-item">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="small fw-bold" th:text="${n.title}">标题</span>
+                                            <span class="badge bg-danger" th:if="${n.isTop == 1}">置顶</span>
+                                        </div>
+                                        <div class="small text-muted text-truncate" th:text="${n.content}">内容</div>
+                                    </div>
+                                </div>
+                                <div class="p-3 text-muted small" th:if="${#lists.isEmpty(noticeList)}">暂无公告</div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-wand-magic-sparkles me-1"></i>为你推荐</span>
+                                <a class="small" th:href="@{/user/toApplyClass}">更多课程</a>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex flex-column gap-2" th:if="${not #lists.isEmpty(recommendClasses)}">
+                                    <div class="d-flex justify-content-between align-items-center p-2"
+                                         style="border:1px solid var(--line);border-radius:12px"
+                                         th:each="c:${recommendClasses}">
+                                        <div>
+                                            <div style="font-weight:600;font-size:13.5px" th:text="${c.className}">课程</div>
+                                            <div class="small text-muted" th:text="${c.classBegin} + ' · ' + ${c.coach}">时间</div>
+                                        </div>
+                                        <a class="btn btn-sm btn-outline-primary"
+                                           th:href="@{/user/toApplyClass}">报名</a>
+                                    </div>
+                                </div>
+                                <div class="text-muted small" th:if="${#lists.isEmpty(recommendClasses)}">
+                                    已经报名了全部课程，厉害！
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="userCommon::common-footer"></footer>
+    </div>
+</div>
+
+<div th:include="userCommon::common-scripts"></div>
+</body>
+</html>

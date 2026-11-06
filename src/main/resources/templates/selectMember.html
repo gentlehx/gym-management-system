@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="adminCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="adminCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="adminCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">会员管理</h1>
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">数据看板</a></li>
+                    <li class="breadcrumb-item active">会员管理</li>
+                </ol>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat">
+                            <div class="stat-top">
+                                <span class="stat-label">会员总数</span>
+                                <span class="stat-icon"><i class="fas fa-users"></i></span>
+                            </div>
+                            <div class="stat-value num" th:text="${#lists.size(memberList)}">12</div>
+                            <div class="stat-foot"><i class="fas fa-id-card"></i> 在册会员档案</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat green">
+                            <div class="stat-top">
+                                <span class="stat-label">有效卡</span>
+                                <span class="stat-icon"><i class="fas fa-circle-check"></i></span>
+                            </div>
+                            <div class="stat-value num" th:text="${validCount}">0</div>
+                            <div class="stat-foot">
+                                <i class="fas fa-shield-halved"></i>
+                                即将到期 <b th:text="${warnCount}">0</b> · 已到期 <b th:text="${expiredCount}">0</b>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat amber">
+                            <div class="stat-top">
+                                <span class="stat-label">课时紧张</span>
+                                <span class="stat-icon"><i class="fas fa-hourglass-half"></i></span>
+                            </div>
+                            <div class="stat-value num" th:text="${lowClassCount}">0</div>
+                            <div class="stat-foot"><i class="fas fa-triangle-exclamation"></i> 剩余课时 ≤ 5</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat sky">
+                            <div class="stat-top">
+                                <span class="stat-label">当前筛选</span>
+                                <span class="stat-icon"><i class="fas fa-filter"></i></span>
+                            </div>
+                            <div class="stat-value" style="font-size:20px"
+                                 th:text="${keyword != null && keyword != ''} ? ${keyword} : '全部会员'">全部会员</div>
+                            <div class="stat-foot"><i class="fas fa-magnifying-glass"></i> 姓名 / 账号 / 手机号</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-table me-1"></i>会员信息表（<span th:text="${#lists.size(memberList)}">12</span> 人）</span>
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-sm btn-outline-secondary" th:href="@{/export/member}">
+                                <i class="fas fa-file-export me-1"></i>导出 CSV
+                            </a>
+                            <a class="btn btn-sm btn-primary" th:href="@{/member/toAddMember}">
+                                <i class="fas fa-plus me-1"></i>新增会员
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form class="row g-2 mb-3" th:action="@{/member/selMember}" method="get">
+                            <div class="col-auto">
+                                <input type="text" class="form-control" name="keyword"
+                                       th:value="${keyword}"
+                                       placeholder="姓名 / 会员账号 / 手机号">
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search me-1"></i>搜索
+                                </button>
+                            </div>
+                            <div class="col-auto" th:if="${keyword != null && keyword != ''}">
+                                <a class="btn btn-outline-secondary" th:href="@{/member/selMember}">清空</a>
+                            </div>
+                        </form>
+
+                        <table id="datatablesSimple">
+                            <thead>
+                            <tr>
+                                <th>会员账号/卡号</th>
+                                <th>姓名</th>
+                                <th>性别 / 年龄</th>
+                                <th>联系方式</th>
+                                <th>身高 / 体重</th>
+                                <th>办卡时间</th>
+                                <th>到期日</th>
+                                <th>卡状态</th>
+                                <th>购买 / 剩余课时</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            <tr th:each="mem:${memberList}">
+                                <td>
+                                    <a th:href="@{/member/detail(memberAccount=${mem.memberAccount})}"
+                                       th:text="${mem.memberAccount}"
+                                       style="font-weight:600;text-decoration:none;color:var(--brand)">会员账号/卡号</a>
+                                </td>
+                                <td style="font-weight:600" th:text="${mem.memberName}">姓名</td>
+                                <td>
+                                    <span th:text="${mem.memberGender}">男</span>
+                                    <span style="color:var(--muted-2)"> · </span>
+                                    <span th:text="${mem.memberAge}">25</span>
+                                    <span style="color:var(--muted-2)"> 岁</span>
+                                </td>
+                                <td th:text="${mem.memberPhone}">联系方式</td>
+                                <td>
+                                    <span th:text="${mem.memberHeight}">175</span>
+                                    <span style="color:var(--muted-2)"> cm / </span>
+                                    <span th:text="${mem.memberWeight}">68</span>
+                                    <span style="color:var(--muted-2)"> kg</span>
+                                </td>
+                                <td th:text="${mem.cardTime}">办卡时间</td>
+                                <td th:text="${mem.cardEndDate}">到期日</td>
+                                <td>
+                                    <span class="badge bg-danger"
+                                          th:if="${cardStatusMap[mem.memberAccount] == '已到期'}">已到期</span>
+                                    <span class="badge bg-warning"
+                                          th:if="${cardStatusMap[mem.memberAccount] == '即将到期'}">即将到期</span>
+                                    <span class="badge bg-success"
+                                          th:if="${cardStatusMap[mem.memberAccount] == '有效'}">有效</span>
+                                </td>
+                                <td>
+                                    <span th:text="${mem.cardClass}" style="color:var(--muted)">48</span>
+                                    <span style="color:var(--muted-2)"> / </span>
+                                    <span class="badge"
+                                          th:classappend="${mem.cardNextClass <= 5} ? 'bg-danger' : 'bg-light text-dark'"
+                                          th:text="${mem.cardNextClass}">剩余课时</span>
+                                </td>
+                                <td>
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       th:href="@{/member/detail(memberAccount=${mem.memberAccount})}">档案</a>
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                       th:href="@{/member/toUpdateMember(memberAccount=${mem.memberAccount})}">编辑</a>
+                                    <a class="btn btn-sm btn-outline-danger"
+                                       th:href="@{/member/delMember(memberAccount=${mem.memberAccount})}"
+                                       onclick="return del()">删除</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="adminCommon::common-footer"></footer>
+    </div>
+</div>
+
+<div th:include="adminCommon::common-scripts"></div>
+<script>
+    function del() {
+        let msg = "确定要删除该会员吗？相关签到、消费记录将一并失效。";
+        if (confirm(msg) == true) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+</script>
+</body>
+</html>

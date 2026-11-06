@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="adminCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="adminCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="adminCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">数据看板</h1>
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item active">主页</li>
+                    <li class="breadcrumb-item">数据截至 <span th:text="${businessDate}">2025-10-10</span></li>
+                </ol>
+
+                <!-- 核心指标 -->
+                <div class="row">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card bg-primary text-white mb-4">
+                            <div class="card-body">
+                                <div class="small">会员总数</div>
+                                <div class="fs-3 fw-bold" th:text="${memberTotal} + ' 人'">12 人</div>
+                            </div>
+                            <div class="card-footer d-flex align-items-center justify-content-between">
+                                <span class="small text-white">员工 <span th:text="${employeeTotal}">6</span> 人 ·
+                                    场馆合计 <span th:text="${humanTotal}">18</span> 人</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card bg-success text-white mb-4">
+                            <div class="card-body">
+                                <div class="small">当日签到</div>
+                                <div class="fs-3 fw-bold" th:text="${todayCheckIn} + ' 人次'">10 人次</div>
+                            </div>
+                            <div class="card-footer d-flex align-items-center justify-content-between">
+                                <span class="small text-white">到店 <span th:text="${todayCheckInMember}">10</span> 人 ·
+                                    累计 <span th:text="${checkInTotal}">60</span> 人次</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card bg-warning text-white mb-4">
+                            <div class="card-body">
+                                <div class="small">累计收入</div>
+                                <div class="fs-3 fw-bold">
+                                    ¥<span th:text="${#numbers.formatDecimal(incomeTotal,1,'COMMA',0,'POINT')}">42,395</span>
+                                </div>
+                            </div>
+                            <div class="card-footer d-flex align-items-center justify-content-between">
+                                <span class="small text-white"><span th:text="${paymentCount}">39</span> 笔 ·
+                                    笔均 ¥<span th:text="${#numbers.formatDecimal(avgAmount,1,'COMMA',0,'POINT')}">1087</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card bg-danger text-white mb-4">
+                            <div class="card-body">
+                                <div class="small">器材完好率</div>
+                                <div class="fs-3 fw-bold" th:text="${equipmentRate} + ' %'">71 %</div>
+                            </div>
+                            <div class="card-footer d-flex align-items-center justify-content-between">
+                                <span class="small text-white">正常 <span th:text="${normalEquipment}">5</span>/<span
+                                        th:text="${equipmentTotal}">7</span> 件 ·
+                                    待维修 <span th:text="${pendingMaintain}">5</span> 单</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 图表 -->
+                <div class="row">
+                    <div class="col-xl-8">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-chart-area me-1"></i>
+                                近 10 天签到趋势
+                            </div>
+                            <div class="card-body" style="height: 280px">
+                                <canvas id="trendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-chart-pie me-1"></i>
+                                收入构成
+                            </div>
+                            <div class="card-body" style="height: 280px">
+                                <canvas id="incomeChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-chart-bar me-1"></i>
+                                课程报名排行
+                            </div>
+                            <div class="card-body" style="height: 260px">
+                                <canvas id="classChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-dumbbell me-1"></i>
+                                器材状态
+                            </div>
+                            <div class="card-body" style="height: 260px">
+                                <canvas id="equipChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-credit-card me-1"></i>
+                                支付方式
+                            </div>
+                            <div class="card-body" style="height: 260px">
+                                <canvas id="payWayChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 明细 -->
+                <div class="row">
+                    <div class="col-xl-3">
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-door-open me-1"></i>最近签到</span>
+                                <a class="small" th:href="@{/checkin/selCheckin}">全部记录</a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-sm mb-0">
+                                        <thead>
+                                        <tr>
+                                            <th>会员</th>
+                                            <th>时间</th>
+                                            <th>类型</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="c:${recentCheckIn}">
+                                            <td th:text="${c.memberName}">张三</td>
+                                            <td class="small text-muted" style="white-space:nowrap"
+                                                th:title="${c.checkInDate}"
+                                                th:text="${#strings.substring(c.checkInDate,5)} + ' ' + ${c.checkInTime}">10-10 19:20</td>
+                                            <td><span class="badge bg-light text-dark"
+                                                      th:text="${c.checkInType}">日常健身</span></td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(recentCheckIn)}">
+                                            <td colspan="3" class="text-center text-muted py-3">暂无签到记录</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3">
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-exclamation-triangle me-1"></i>课时余量提醒</span>
+                                <a class="small" th:href="@{/member/selMember}">会员管理</a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-sm mb-0">
+                                        <thead>
+                                        <tr>
+                                            <th>会员</th>
+                                            <th>剩余课时</th>
+                                            <th>操作</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="m:${lowClassMembers}">
+                                            <td><span th:text="${m.memberName}">张三</span>
+                                                <span class="small text-muted"
+                                                      th:text="'(' + ${m.memberAccount} + ')'"></span>
+                                            </td>
+                                            <td>
+                                                <span class="badge"
+                                                      th:classappend="${m.cardNextClass <= 5} ? 'bg-danger' : 'bg-warning text-dark'"
+                                                      th:text="${m.cardNextClass} + ' 节'">8 节</span>
+                                            </td>
+                                            <td><a class="small" th:href="@{/payment/selPayment}">去续费</a></td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(lowClassMembers)}">
+                                            <td colspan="3" class="text-center text-muted py-3">暂无会员数据</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card-footer small text-muted">
+                                会员平均剩余课时 <span th:text="${avgLeftClass}">33.0</span> 节
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3">
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-id-card me-1"></i>会员卡到期</span>
+                                <a class="small" th:href="@{/member/selMember}">查看</a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-sm mb-0">
+                                        <thead>
+                                        <tr>
+                                            <th>会员</th>
+                                            <th>到期日</th>
+                                            <th>状态</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="m:${expiringMembers}">
+                                            <td th:text="${m.memberName}">张三</td>
+                                            <td class="small" th:text="${m.cardEndDate}">2025-10-05</td>
+                                            <td>
+                                                <span class="badge bg-danger"
+                                                      th:if="${cardStatusMap[m.memberAccount] == '已到期'}">已到期</span>
+                                                <span class="badge bg-warning text-dark"
+                                                      th:if="${cardStatusMap[m.memberAccount] == '即将到期'}">即将到期</span>
+                                            </td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(expiringMembers)}">
+                                            <td colspan="3" class="text-center text-muted py-3">会员卡均在有效期内</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card-footer small text-muted">
+                                <a th:href="@{/payment/selPayment}">去办理续费</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3">
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-bullhorn me-1"></i>最新公告</span>
+                                <a class="small" th:href="@{/notice/selNotice}">公告管理</a>
+                            </div>
+                            <div class="card-body">
+                                <div class="list-group list-group-flush" th:each="n:${latestNotices}">
+                                    <div class="list-group-item px-0">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="fw-bold small" th:text="${n.title}">公告标题</span>
+                                            <span class="badge bg-danger" th:if="${n.isTop == 1}">置顶</span>
+                                        </div>
+                                        <div class="small text-muted" th:text="${n.publishTime}">2025-10-08</div>
+                                    </div>
+                                </div>
+                                <div class="text-muted small" th:if="${#lists.isEmpty(latestNotices)}">暂无公告</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+        <footer th:replace="adminCommon::common-footer"></footer>
+    </div>
+</div>
+
+<div th:include="adminCommon::common-scripts"></div>
+
+<!-- 图表明细数据 -->
+<div id="trendData" th:text="${checkTrendJson}" style="display:none"></div>
+<div id="classData" th:text="${classRankJson}" style="display:none"></div>
+<div id="incomeData" th:text="${incomeJson}" style="display:none"></div>
+<div id="equipData" th:text="${equipJson}" style="display:none"></div>
+<div id="payWayData" th:text="${payWayJson}" style="display:none"></div>
+
+<script>
+    (function () {
+        function read(id) {
+            var el = document.getElementById(id);
+            if (!el || !el.textContent) return [];
+            try {
+                return JSON.parse(el.textContent);
+            } catch (e) {
+                return [];
+            }
+        }
+
+        var palette = ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6c757d', '#0dcaf0', '#6f42c1', '#fd7e14'];
+        var trend = read('trendData');
+        var classRank = read('classData');
+        var income = read('incomeData');
+        var equip = read('equipData');
+        var payWay = read('payWayData');
+
+        //近 10 天签到趋势
+        var trendCtx = document.getElementById('trendChart');
+        if (trendCtx) {
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: trend.map(function (x) { return x.label; }),
+                    datasets: [{
+                        label: '签到人次',
+                        data: trend.map(function (x) { return x.num; }),
+                        lineTension: 0.3,
+                        backgroundColor: 'rgba(13,110,253,0.1)',
+                        borderColor: '#0d6efd',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#0d6efd',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    legend: {display: false},
+                    scales: {
+                        yAxes: [{
+                            ticks: {beginAtZero: true, precision: 0}
+                        }],
+                        xAxes: [{gridLines: {display: false}}]
+                    }
+                }
+            });
+        }
+
+        function doughnut(id, data, unit) {
+            var canvas = document.getElementById(id);
+            if (!canvas) return;
+            new Chart(canvas, {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(function (x) { return x.label; }),
+                    datasets: [{
+                        data: data.map(function (x) { return x.num; }),
+                        backgroundColor: palette,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutoutPercentage: 55,
+                    legend: {position: 'bottom', labels: {boxWidth: 10, fontSize: 11}},
+                    tooltips: {
+                        callbacks: {
+                            label: function (item, d) {
+                                var v = d.datasets[item.datasetIndex].data[item.index];
+                                return d.labels[item.index] + ': ' + v + (unit || '');
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        doughnut('incomeChart', income, ' 元');
+        doughnut('equipChart', equip, ' 件');
+        doughnut('payWayChart', payWay, ' 元');
+
+        //课程报名排行（横向柱状）
+        var classCtx = document.getElementById('classChart');
+        if (classCtx) {
+            new Chart(classCtx, {
+                type: 'horizontalBar',
+                data: {
+                    labels: classRank.map(function (x) { return x.label; }),
+                    datasets: [{
+                        label: '报名人数',
+                        data: classRank.map(function (x) { return x.num; }),
+                        backgroundColor: '#6366f1',
+                        hoverBackgroundColor: '#4f46e5',
+                        barThickness: 14
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    legend: {display: false},
+                    scales: {
+                        xAxes: [{ticks: {beginAtZero: true, precision: 0}}],
+                        yAxes: [{gridLines: {display: false}}]
+                    }
+                }
+            });
+        }
+    })();
+</script>
+</body>
+</html>

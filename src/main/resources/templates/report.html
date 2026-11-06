@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="adminCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="adminCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="adminCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">报表中心</h1>
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/toAdminMain}">主页</a></li>
+                    <li class="breadcrumb-item active">报表中心</li>
+                </ol>
+
+                <!-- 筛选 -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form class="row g-2 align-items-end" th:action="@{/report/selReport}" method="get">
+                            <div class="col-auto">
+                                <label class="form-label">开始日期</label>
+                                <input type="date" class="form-control" name="start" th:value="${start}">
+                            </div>
+                            <div class="col-auto">
+                                <label class="form-label">结束日期</label>
+                                <input type="date" class="form-control" name="end" th:value="${end}">
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search me-1"></i>生成报表
+                                </button>
+                            </div>
+                            <div class="col-auto">
+                                <a class="btn btn-outline-secondary"
+                                   th:href="@{/report/export(start=${start},end=${end})}">
+                                    <i class="fas fa-file-export me-1"></i>导出明细
+                                </a>
+                            </div>
+                            <div class="col-auto ms-auto d-flex gap-2">
+                                <a class="btn btn-sm btn-outline-primary"
+                                   th:href="@{/report/selReport(start='2025-10-01',end='2025-10-10')}">全部（10 天）</a>
+                                <a class="btn btn-sm btn-outline-primary"
+                                   th:href="@{/report/selReport(start='2025-10-01',end='2025-10-05')}">上旬前半</a>
+                                <a class="btn btn-sm btn-outline-primary"
+                                   th:href="@{/report/selReport(start='2025-10-06',end='2025-10-10')}">上旬后半</a>
+                            </div>
+                        </form>
+                        <div class="mt-2 small text-muted">
+                            统计区间：<span th:text="${start}">2025-10-01</span> ~ <span th:text="${end}">2025-10-10</span>
+                            （共 <span th:text="${days}">10</span> 天）
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 汇总 -->
+                <div class="row">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat">
+                            <div class="stat-top">
+                                <div class="stat-label">区间收入</div>
+                                <div class="stat-icon"><i class="fas fa-coins"></i></div>
+                            </div>
+                            <div class="stat-value">¥<span
+                                    th:text="${#numbers.formatDecimal(income,1,'COMMA',2,'POINT')}">42,395.00</span></div>
+                            <div class="stat-foot">客单价 ¥<span
+                                    th:text="${#numbers.formatDecimal(avgTicket,1,'COMMA',0,'POINT')}">1,087</span></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat green">
+                            <div class="stat-top">
+                                <div class="stat-label">收费笔数</div>
+                                <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+                            </div>
+                            <div class="stat-value"><span th:text="${payCount}">39</span><small>笔</small></div>
+                            <div class="stat-foot">平均每天 <span
+                                    th:text="${payCount == 0 ? 0 : #numbers.formatDecimal(payCount / days, 1, 'COMMA', 1, 'POINT')}">3.9</span>
+                                笔
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat sky">
+                            <div class="stat-top">
+                                <div class="stat-label">签到人次</div>
+                                <div class="stat-icon"><i class="fas fa-door-open"></i></div>
+                            </div>
+                            <div class="stat-value"><span th:text="${checkInCount}">60</span><small>人次</small></div>
+                            <div class="stat-foot">日均 <span th:text="${avgCheckIn}">6</span> 人次</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat amber">
+                            <div class="stat-top">
+                                <div class="stat-label">新增会员</div>
+                                <div class="stat-icon"><i class="fas fa-user-plus"></i></div>
+                            </div>
+                            <div class="stat-value"><span th:text="${newMember}">12</span><small>人</small></div>
+                            <div class="stat-foot">累计课程报名 <span th:text="${orderTotal}">11</span> 条</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 图表 -->
+                <div class="row">
+                    <div class="col-xl-7">
+                        <div class="card">
+                            <div class="card-header"><i class="fas fa-chart-bar me-1"></i>每日收入</div>
+                            <div class="card-body" style="height: 280px">
+                                <canvas id="dailyChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-5">
+                        <div class="card">
+                            <div class="card-header"><i class="fas fa-chart-pie me-1"></i>收入构成</div>
+                            <div class="card-body" style="height: 280px">
+                                <canvas id="typeChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header"><i class="fas fa-chart-line me-1"></i>签到趋势</div>
+                    <div class="card-body" style="height: 220px">
+                        <canvas id="checkChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 明细 -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-table me-1"></i>区间收费明细</span>
+                        <span class="small text-muted">共 <span th:text="${#lists.size(paymentList)}">39</span> 条</span>
+                    </div>
+                    <div class="card-body">
+                        <table id="datatablesSimple">
+                            <thead>
+                            <tr>
+                                <th>收费日期</th>
+                                <th>会员</th>
+                                <th>类型</th>
+                                <th>支付方式</th>
+                                <th>金额(元)</th>
+                                <th>课时</th>
+                                <th>备注</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="p:${paymentList}">
+                                <td th:text="${p.payTime}">2025-10-08</td>
+                                <td>
+                                    <span th:text="${p.memberName}">张三</span>
+                                    <span class="small text-muted" th:text="'(' + ${p.memberAccount} + ')'"></span>
+                                </td>
+                                <td><span class="badge bg-light text-dark" th:text="${p.payType}">办卡</span></td>
+                                <td th:text="${p.payWay}">微信</td>
+                                <td class="fw-bold"
+                                    th:text="${#numbers.formatDecimal(p.amount,1,'COMMA',2,'POINT')}">1980.00
+                                </td>
+                                <td th:text="${p.classCount}">30</td>
+                                <td class="small text-muted" th:text="${p.remark}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="adminCommon::common-footer"></footer>
+    </div>
+</div>
+
+<div th:include="adminCommon::common-scripts"></div>
+<div id="dailyData" th:text="${dailyIncomeJson}" style="display:none"></div>
+<div id="typeData" th:text="${incomeTypeJson}" style="display:none"></div>
+<div id="checkData" th:text="${checkInJson}" style="display:none"></div>
+
+<script>
+    (function () {
+        function read(id) {
+            var el = document.getElementById(id);
+            if (!el || !el.textContent) return [];
+            try {
+                return JSON.parse(el.textContent);
+            } catch (e) {
+                return [];
+            }
+        }
+
+        var palette = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#0ea5e9', '#8b5cf6', '#14b8a6'];
+        var daily = read('dailyData');
+        var types = read('typeData');
+        var checks = read('checkData');
+
+        var dailyCanvas = document.getElementById('dailyChart');
+        if (dailyCanvas) {
+            new Chart(dailyCanvas, {
+                type: 'bar',
+                data: {
+                    labels: daily.map(function (x) { return x.label; }),
+                    datasets: [{
+                        label: '收入(元)',
+                        data: daily.map(function (x) { return x.num; }),
+                        backgroundColor: 'rgba(79,70,229,.85)',
+                        hoverBackgroundColor: '#4f46e5',
+                        borderRadius: 6,
+                        barPercentage: .6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    legend: {display: false},
+                    scales: {
+                        yAxes: [{ticks: {beginAtZero: true, callback: function (v) { return v; }}}],
+                        xAxes: [{gridLines: {display: false}}]
+                    }
+                }
+            });
+        }
+
+        var typeCanvas = document.getElementById('typeChart');
+        if (typeCanvas) {
+            new Chart(typeCanvas, {
+                type: 'doughnut',
+                data: {
+                    labels: types.map(function (x) { return x.label; }),
+                    datasets: [{
+                        data: types.map(function (x) { return x.num; }),
+                        backgroundColor: palette,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutoutPercentage: 58,
+                    legend: {position: 'bottom', labels: {boxWidth: 10, fontSize: 11, padding: 12}},
+                    tooltips: {
+                        callbacks: {
+                            label: function (item, d) {
+                                var v = d.datasets[item.datasetIndex].data[item.index];
+                                return d.labels[item.index] + '：' + Number(v).toLocaleString() + ' 元';
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        var checkCanvas = document.getElementById('checkChart');
+        if (checkCanvas) {
+            new Chart(checkCanvas, {
+                type: 'line',
+                data: {
+                    labels: checks.map(function (x) { return x.label; }),
+                    datasets: [{
+                        label: '签到人次',
+                        data: checks.map(function (x) { return x.num; }),
+                        borderColor: '#0ea5e9',
+                        backgroundColor: 'rgba(14,165,233,.12)',
+                        fill: true,
+                        lineTension: .3,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#0ea5e9'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    legend: {display: false},
+                    scales: {
+                        yAxes: [{ticks: {beginAtZero: true, precision: 0}}],
+                        xAxes: [{gridLines: {display: false}}]
+                    }
+                }
+            });
+        }
+    })();
+</script>
+</body>
+</html>

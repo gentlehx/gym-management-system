@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="adminCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="adminCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="adminCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">签到管理</h1>
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/toAdminMain}">主页</a></li>
+                    <li class="breadcrumb-item active">签到管理</li>
+                </ol>
+
+                <div class="alert alert-success alert-dismissible fade show" th:if="${msg}">
+                    <i class="fas fa-check-circle me-1"></i><span th:text="${msg}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-4 col-md-6">
+                        <div class="card bg-primary text-white mb-4">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="small">当日签到人次</div>
+                                    <div class="fs-4 fw-bold" th:text="${todayCount}">10</div>
+                                </div>
+                                <i class="fas fa-door-open fa-2x opacity-50"></i>
+                            </div>
+                            <div class="card-footer small" th:text="'统计日期：' + ${checkInDate}"></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-6">
+                        <div class="card bg-success text-white mb-4">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="small">当日到店人数</div>
+                                    <div class="fs-4 fw-bold" th:text="${todayMemberCount}">10</div>
+                                </div>
+                                <i class="fas fa-users fa-2x opacity-50"></i>
+                            </div>
+                            <div class="card-footer small">按会员去重统计</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-6">
+                        <div class="card bg-warning text-white mb-4">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="small">累计签到</div>
+                                    <div class="fs-4 fw-bold" th:text="${totalCount}">60</div>
+                                </div>
+                                <i class="fas fa-clipboard-check fa-2x opacity-50"></i>
+                            </div>
+                            <div class="card-footer small">全部签到记录条数</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-table me-1"></i>签到记录</span>
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#addCheckInModal">
+                            <i class="fas fa-plus me-1"></i>代会员签到
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <table id="datatablesSimple">
+                            <thead>
+                            <tr>
+                                <th>签到日期</th>
+                                <th>签到时间</th>
+                                <th>会员账号</th>
+                                <th>会员姓名</th>
+                                <th>签到类型</th>
+                                <th>备注</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="c:${checkInList}">
+                                <td th:text="${c.checkInDate}">2025-10-10</td>
+                                <td th:text="${c.checkInTime}">19:20</td>
+                                <td th:text="${c.memberAccount}">202509867</td>
+                                <td th:text="${c.memberName}">张三</td>
+                                <td th:text="${c.checkInType}">日常健身</td>
+                                <td th:text="${c.remark}"></td>
+                                <td>
+                                    <a th:href="@{/checkin/delCheckin(checkInId=${c.checkInId})}"
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('确定删除这条签到记录吗？')">删除</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="adminCommon::common-footer"></footer>
+    </div>
+</div>
+
+<!-- 代签弹窗 -->
+<div class="modal fade" id="addCheckInModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form class="modal-content" th:action="@{/checkin/addCheckin}" method="post">
+            <div class="modal-header">
+                <h5 class="modal-title">代会员签到</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">会员</label>
+                    <select class="form-select" name="memberAccount" required>
+                        <option value="">请选择会员</option>
+                        <option th:each="m:${memberList}" th:value="${m.memberAccount}"
+                                th:text="${m.memberName} + '（' + ${m.memberAccount} + '）'"></option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">签到类型</label>
+                    <select class="form-select" name="checkInType">
+                        <option value="日常健身">日常健身</option>
+                        <option value="课程签到">课程签到</option>
+                        <option value="私教课">私教课</option>
+                        <option value="体测">体测</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">备注</label>
+                    <input type="text" class="form-control" name="remark" placeholder="选填">
+                </div>
+                <div class="text-muted small">签到日期固定记为 2025-10-10，时刻取当前时间。</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="submit" class="btn btn-primary">确认签到</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div th:include="adminCommon::common-scripts"></div>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="adminCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="adminCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="adminCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">公告管理</h1>
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/toAdminMain}">主页</a></li>
+                    <li class="breadcrumb-item active">公告管理</li>
+                </ol>
+
+                <div class="alert alert-success alert-dismissible fade show" th:if="${msg}">
+                    <i class="fas fa-check-circle me-1"></i><span th:text="${msg}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-bullhorn me-1"></i>场馆公告（共 <span th:text="${noticeCount}">6</span> 条）</span>
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#addNoticeModal">
+                            <i class="fas fa-plus me-1"></i>发布公告
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group">
+                            <div class="list-group-item" th:each="n:${noticeList}">
+                                <div class="d-flex w-100 justify-content-between align-items-start">
+                                    <h6 class="mb-1">
+                                        <span class="badge bg-danger me-1" th:if="${n.isTop == 1}">置顶</span>
+                                        <span th:text="${n.title}">公告标题</span>
+                                    </h6>
+                                    <small class="text-muted text-nowrap ms-3" th:text="${n.publishTime}">2025-10-08 09:00</small>
+                                </div>
+                                <p class="mb-2 small text-muted" th:text="${n.content}">内容</p>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-light text-dark" th:text="'发布人：' + ${n.author}">发布人：前台</span>
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                       th:href="@{/notice/topNotice(noticeId=${n.noticeId},isTop=${n.isTop})}"
+                                       th:text="${n.isTop == 1} ? '取消置顶' : '置顶'">置顶</a>
+                                    <a class="btn btn-sm btn-outline-danger"
+                                       th:href="@{/notice/delNotice(noticeId=${n.noticeId})}"
+                                       onclick="return confirm('确定删除这条公告吗？')">删除</a>
+                                </div>
+                            </div>
+                            <div class="text-center text-muted py-4" th:if="${#lists.isEmpty(noticeList)}">还没有发布过公告</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="adminCommon::common-footer"></footer>
+    </div>
+</div>
+
+<!-- 发布公告弹窗 -->
+<div class="modal fade" id="addNoticeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <form class="modal-content" th:action="@{/notice/addNotice}" method="post">
+            <div class="modal-header">
+                <h5 class="modal-title">发布公告</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">标题</label>
+                    <input type="text" class="form-control" name="title" placeholder="公告标题" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">内容</label>
+                    <textarea class="form-control" name="content" rows="4" placeholder="公告内容"></textarea>
+                </div>
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label class="form-label">发布人</label>
+                        <input type="text" class="form-control" name="author" placeholder="如：前台" value="管理员">
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label class="form-label">是否置顶</label>
+                        <select class="form-select" name="isTop">
+                            <option value="0">普通公告</option>
+                            <option value="1">置顶公告</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="text-muted small">发布时间取 2025-10-10 与当前时刻。</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="submit" class="btn btn-primary">发布</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div th:include="adminCommon::common-scripts"></div>
+</body>
+</html>

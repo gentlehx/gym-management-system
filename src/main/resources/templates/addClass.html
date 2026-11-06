@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="adminCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="adminCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="adminCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">添加课程</h1>
+
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">数据看板</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/class/selClass}">课程管理</a></li>
+                    <li class="breadcrumb-item active">添加课程</li>
+                </ol>
+
+                <div class="aside-tips">
+                    <i class="fas fa-circle-info"></i>
+                    <div>课程时间格式为「2025年10月10日 19:00」，系统按该时间判断"今日课程"；容量留空默认 20 人，满员后会员端将无法报名。</div>
+                </div>
+
+                <div class="card mb-4 form-card">
+                    <div class="card-header"><i class="fas fa-plus me-1"></i>课程基础信息</div>
+                    <div class="card-body">
+                        <form th:action="@{/class/addClass}" method="post" name="addForm"
+                              onsubmit="return beforeSubmit(this)">
+                            <div class="form-grid">
+                                <div class="field">
+                                    <label>课程编号<span class="req">*</span></label>
+                                    <input type="text" class="form-control" placeholder="4 位数字编号，如 1021" name="classId">
+                                </div>
+                                <div class="field">
+                                    <label>课程名称<span class="req">*</span></label>
+                                    <input type="text" class="form-control" placeholder="如 燃脂搏击 / 普拉提" name="className">
+                                </div>
+                                <div class="field">
+                                    <label>开课时间<span class="req">*</span></label>
+                                    <input type="text" class="form-control" placeholder="2025年10月10日 19:00" name="classBegin">
+                                </div>
+                                <div class="field">
+                                    <label>课程时长<span class="req">*</span></label>
+                                    <input type="text" class="form-control" placeholder="如 60分钟" name="classTime">
+                                </div>
+                                <div class="field">
+                                    <label>授课教练<span class="req">*</span></label>
+                                    <input type="text" class="form-control" placeholder="教练姓名" name="coach">
+                                </div>
+                                <div class="field">
+                                    <label>教室</label>
+                                    <input type="text" class="form-control" placeholder="留空自动填「待安排」" name="classroom">
+                                </div>
+                                <div class="field">
+                                    <label>课程容量</label>
+                                    <input type="number" min="1" max="200" class="form-control" placeholder="留空默认 20 人" name="capacity">
+                                    <div class="hint">会员报名达到容量后自动禁止报名</div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <a class="btn btn-outline-secondary" th:href="@{/class/selClass}">取消</a>
+                                <input type="submit" class="btn btn-primary" value="保存课程">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="adminCommon::common-footer"></footer>
+    </div>
+</div>
+
+<div th:include="adminCommon::common-scripts"></div>
+<script type="text/javascript">
+    function beforeSubmit(addForm) {
+        if (addForm.classId.value == "") {
+            alert("请输入课程编号！");
+            return false;
+        }
+        if (!/^\d{4}$/.test(addForm.classId.value)) {
+            alert("课程编号需为 4 位数字！");
+            return false;
+        }
+        if (addForm.className.value == "") {
+            alert("请输入课程名称！");
+            return false;
+        }
+        if (addForm.classBegin.value == "") {
+            alert("请输入课程时间！");
+            return false;
+        }
+        if (addForm.classTime.value == "") {
+            alert("请输入课程时长！");
+            return false;
+        }
+        if (addForm.coach.value == "") {
+            alert("请输入教练！");
+            return false;
+        }
+        return true;
+    }
+</script>
+</body>
+</html>

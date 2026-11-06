@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="userCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="userCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="userCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">我的课程</h1>
+
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/user/toUserMain}">我的主页</a></li>
+                    <li class="breadcrumb-item active">我的课程</li>
+                </ol>
+
+                <div class="alert alert-success alert-dismissible fade show" th:if="${msg}">
+                    <i class="fas fa-check-circle me-1"></i><span th:text="${msg}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-xl-4 col-md-6">
+                        <div class="stat">
+                            <div class="stat-top">
+                                <span class="stat-label">已报课程</span>
+                                <span class="stat-icon"><i class="fas fa-calendar-check"></i></span>
+                            </div>
+                            <div class="stat-value num" th:text="${#lists.size(classOrderList)}">0</div>
+                            <div class="stat-foot"><i class="fas fa-list"></i> 门课程待上课</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-6">
+                        <div class="stat green">
+                            <div class="stat-top">
+                                <span class="stat-label">剩余课时</span>
+                                <span class="stat-icon"><i class="fas fa-hourglass-half"></i></span>
+                            </div>
+                            <div class="stat-value num" th:text="${member.cardNextClass}">0</div>
+                            <div class="stat-foot"><i class="fas fa-circle-check"></i> 可继续预约</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-12">
+                        <div class="stat sky">
+                            <div class="stat-top">
+                                <span class="stat-label">课时说明</span>
+                                <span class="stat-icon"><i class="fas fa-circle-info"></i></span>
+                            </div>
+                            <div style="font-size:12.5px;color:var(--muted);line-height:1.7;margin-top:6px">
+                                报课消耗 1 课时，退课返还 1 课时；开课前 24 小时可自由退课。
+                            </div>
+                            <div class="stat-foot"><i class="fas fa-rotate-left"></i> 退课即时到账</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-table me-1"></i>我的课程（共 <span th:text="${#lists.size(classOrderList)}">0</span> 门）</span>
+                        <a class="btn btn-sm btn-primary" th:href="@{/user/toApplyClass}">
+                            <i class="fas fa-plus me-1"></i>去约课
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="empty" th:if="${#lists.isEmpty(classOrderList)}">
+                            <i class="fas fa-calendar-xmark"></i>
+                            <p>还没有报名任何课程，去课程大厅挑一节吧</p>
+                            <a class="btn btn-primary btn-sm" th:href="@{/user/toApplyClass}">浏览可约课程</a>
+                        </div>
+
+                        <table id="datatablesSimple" th:if="${!#lists.isEmpty(classOrderList)}">
+                            <thead>
+                            <tr>
+                                <th>编号</th>
+                                <th>名称</th>
+                                <th>时间</th>
+                                <th>教练</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            <tr th:each="class:${classOrderList}">
+                                <td th:text="${class.classId}">编号</td>
+                                <td style="font-weight:600" th:text="${class.className}">名称</td>
+                                <td th:text="${class.classBegin}">时间</td>
+                                <td th:text="${class.coach}">教练</td>
+                                <td>
+                                    <a class="btn btn-sm btn-outline-danger"
+                                       th:href="@{/user/delUserClass(classOrderId=${class.classOrderId})}"
+                                       onclick="return del()">退课</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="userCommon::common-footer"></footer>
+    </div>
+</div>
+
+<div th:include="userCommon::common-scripts"></div>
+<script>
+    function del() {
+        let msg = "确定要退课吗？退课后将返还 1 课时。";
+        if (confirm(msg) == true) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+</script>
+</body>
+</html>

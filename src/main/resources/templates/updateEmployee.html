@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="adminCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="adminCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="adminCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">编辑员工</h1>
+
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">数据看板</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/employee/selEmployee}">员工管理</a></li>
+                    <li class="breadcrumb-item active">编辑员工</li>
+                </ol>
+
+                <div class="card mb-4 form-card">
+                    <div class="card-header"><i class="fas fa-pen me-1"></i>修改员工信息</div>
+                    <div class="card-body">
+                        <form th:action="@{/employee/updateEmployee}" method="post">
+                            <div th:each="emp:${employeeList}">
+                                <div class="form-grid">
+                                    <div class="field">
+                                        <label>工号</label>
+                                        <input type="text" class="form-control" readonly="readonly"
+                                               th:value="${emp.employeeAccount}" name="employeeAccount">
+                                    </div>
+                                    <div class="field">
+                                        <label>姓名</label>
+                                        <input type="text" class="form-control" th:value="${emp.employeeName}"
+                                               name="employeeName">
+                                    </div>
+                                    <div class="field">
+                                        <label>性别</label>
+                                        <select class="form-select" name="employeeGender">
+                                            <option value="男" th:selected="${emp.employeeGender == '男'}">男</option>
+                                            <option value="女" th:selected="${emp.employeeGender == '女'}">女</option>
+                                        </select>
+                                    </div>
+                                    <div class="field">
+                                        <label>年龄</label>
+                                        <input type="text" class="form-control" th:value="${emp.employeeAge}"
+                                               name="employeeAge">
+                                    </div>
+                                    <div class="field">
+                                        <label>职务</label>
+                                        <input type="text" class="form-control" th:value="${emp.staff}" name="staff">
+                                    </div>
+                                    <div class="field">
+                                        <label>入职时间</label>
+                                        <input type="text" class="form-control" th:value="${emp.entryTime}" readonly>
+                                        <div class="hint">入职时间由系统登记，不可修改</div>
+                                    </div>
+                                    <div class="field full">
+                                        <label>备注信息</label>
+                                        <input type="text" class="form-control" th:value="${emp.employeeMessage}"
+                                               name="employeeMessage">
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <a class="btn btn-outline-secondary" th:href="@{/employee/selEmployee}">取消</a>
+                                    <input type="submit" class="btn btn-primary" value="确认修改">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="adminCommon::common-footer"></footer>
+    </div>
+</div>
+
+<div th:include="adminCommon::common-scripts"></div>
+</body>
+</html>

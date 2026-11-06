@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="adminCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="adminCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="adminCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">课程报名信息</h1>
+
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">数据看板</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/class/selClass}">课程管理</a></li>
+                    <li class="breadcrumb-item active">报名信息</li>
+                </ol>
+
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-users me-1"></i>报名名单</span>
+                        <a class="btn btn-sm btn-outline-secondary" th:href="@{/class/selClass}">
+                            <i class="fas fa-arrow-left me-1"></i>返回课程列表
+                        </a>
+                    </div>
+
+                    <!-- 无人报名 -->
+                    <div class="card-body" th:if="${#lists.isEmpty(classOrderList)}">
+                        <div class="empty">
+                            <i class="fas fa-user-slash"></i>
+                            <p>该课程暂时还没有人报名</p>
+                            <a class="btn btn-outline-secondary btn-sm" th:href="@{/class/selClass}">返回课程列表</a>
+                        </div>
+                    </div>
+
+                    <!-- 已有人报名 -->
+                    <div class="card-body" th:if="${not #lists.isEmpty(classOrderList)}">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <div class="stat">
+                                    <div class="stat-top">
+                                        <span class="stat-label">已报名人数</span>
+                                        <span class="stat-icon"><i class="fas fa-user-check"></i></span>
+                                    </div>
+                                    <div class="stat-value num" th:text="${#lists.size(classOrderList)}">0</div>
+                                    <div class="stat-foot"><i class="fas fa-users"></i> 名会员</div>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div class="kv">
+                                            <span>课程名称</span>
+                                            <span th:text="${classOrderList[0].className}">课程名称</span>
+                                        </div>
+                                        <div class="kv">
+                                            <span>开课时间</span>
+                                            <span th:text="${classOrderList[0].classBegin}">开课时间</span>
+                                        </div>
+                                        <div class="kv">
+                                            <span>课程编号</span>
+                                            <span th:text="${classOrderList[0].classId}">课程编号</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th style="width:60px">#</th>
+                                <th>会员账号</th>
+                                <th>会员姓名</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="order,stat:${classOrderList}">
+                                <td th:text="${stat.count}">1</td>
+                                <td th:text="${order.memberAccount}">会员账号</td>
+                                <td style="font-weight:600" th:text="${order.memberName}">会员姓名</td>
+                                <td>
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       th:href="@{/member/detail(memberAccount=${order.memberAccount})}">查看档案</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="adminCommon::common-footer"></footer>
+    </div>
+</div>
+
+<div th:include="adminCommon::common-scripts"></div>
+</body>
+</html>

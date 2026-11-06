@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="adminCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="adminCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="adminCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">体测记录</h1>
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/toAdminMain}">主页</a></li>
+                    <li class="breadcrumb-item active">体测记录</li>
+                </ol>
+
+                <div class="alert alert-success alert-dismissible fade show" th:if="${msg}">
+                    <i class="fas fa-check-circle me-1"></i><span th:text="${msg}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-4 col-md-6">
+                        <div class="card bg-primary text-white mb-4">
+                            <div class="card-body">
+                                <div class="small">体测记录</div>
+                                <div class="fs-3 fw-bold" th:text="${recordCount} + ' 条'">24 条</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-6">
+                        <div class="card bg-success text-white mb-4">
+                            <div class="card-body">
+                                <div class="small">参与会员</div>
+                                <div class="fs-3 fw-bold" th:text="${memberCount} + ' 人'">12 人</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-6">
+                        <div class="card bg-warning text-white mb-4">
+                            <div class="card-body">
+                                <div class="small">平均体脂率</div>
+                                <div class="fs-3 fw-bold" th:text="${avgFat} + ' %'">21.5 %</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-heartbeat me-1"></i>体测明细</span>
+                        <a class="btn btn-sm btn-outline-secondary" th:href="@{/export/bodytest}">
+                            <i class="fas fa-file-export me-1"></i>导出 CSV
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <table id="datatablesSimple">
+                            <thead>
+                            <tr>
+                                <th>体测日期</th>
+                                <th>会员</th>
+                                <th>身高(cm)</th>
+                                <th>体重(kg)</th>
+                                <th>体脂率(%)</th>
+                                <th>肌肉量(kg)</th>
+                                <th>BMI</th>
+                                <th>教练点评</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="b:${bodyTestList}">
+                                <td th:text="${b.testDate}">2025-10-08</td>
+                                <td>
+                                    <span th:text="${b.memberName}">张三</span>
+                                    <span class="small text-muted" th:text="'(' + ${b.memberAccount} + ')'"></span>
+                                </td>
+                                <td th:text="${b.height}">170</td>
+                                <td th:text="${b.weight}">60.2</td>
+                                <td th:text="${b.bodyFat}">19.2</td>
+                                <td th:text="${b.muscle}">23.7</td>
+                                <td th:text="${b.bmi}">18.2</td>
+                                <td class="small text-muted" th:text="${b.remark}"></td>
+                                <td>
+                                    <a th:href="@{/bodytest/delBodyTest(bodyTestId=${b.bodyTestId})}"
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('确定删除这条体测记录吗？')">删除</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="adminCommon::common-footer"></footer>
+    </div>
+</div>
+
+<div th:include="adminCommon::common-scripts"></div>
+</body>
+</html>

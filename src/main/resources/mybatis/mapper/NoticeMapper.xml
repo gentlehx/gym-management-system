@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.milotnt.mapper.NoticeMapper">
+
+    <select id="findAll" resultType="notice">
+        SELECT *
+        FROM notice
+        ORDER BY is_top DESC, publish_time DESC
+    </select>
+
+    <select id="findLatest" parameterType="java.lang.Integer" resultType="notice">
+        SELECT *
+        FROM notice
+        ORDER BY is_top DESC, publish_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <insert id="insertNotice" parameterType="notice" useGeneratedKeys="true" keyProperty="noticeId">
+        INSERT INTO notice (title, content, author, publish_time, is_top)
+        VALUES (#{title}, #{content}, #{author}, #{publishTime}, #{isTop})
+    </insert>
+
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        DELETE
+        FROM notice
+        WHERE notice_id = #{noticeId}
+    </delete>
+
+    <update id="updateTop">
+        UPDATE notice
+        SET is_top = #{isTop}
+        WHERE notice_id = #{noticeId}
+    </update>
+
+    <select id="selectTotalCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM notice
+    </select>
+
+</mapper>

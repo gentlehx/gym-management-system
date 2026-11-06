@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="adminCommon::common-header">
+
+</head>
+<body class="sb-nav-fixed">
+<nav th:replace="adminCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="adminCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">添加员工</h1>
+
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">数据看板</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/employee/selEmployee}">员工管理</a></li>
+                    <li class="breadcrumb-item active">添加员工</li>
+                </ol>
+
+                <div class="aside-tips">
+                    <i class="fas fa-circle-info"></i>
+                    <div>工号由系统自动生成，入职时间固定记录为 <b>2025-10-08</b>；职务建议填写「健身教练 / 前台 / 保洁员」等标准岗位，便于统计。</div>
+                </div>
+
+                <div class="card mb-4 form-card">
+                    <div class="card-header"><i class="fas fa-user-tie me-1"></i>员工基础信息</div>
+                    <div class="card-body">
+                        <form th:action="@{/employee/addEmployee}" method="post" name="addForm"
+                              onsubmit="return beforeSubmit(this)">
+                            <div class="form-grid">
+                                <div class="field">
+                                    <label>工号</label>
+                                    <input type="text" class="form-control" placeholder="系统自动生成" readonly>
+                                    <div class="hint">提交后由后台按顺序生成</div>
+                                </div>
+                                <div class="field">
+                                    <label>姓名<span class="req">*</span></label>
+                                    <input type="text" class="form-control" placeholder="员工姓名" name="employeeName">
+                                </div>
+                                <div class="field">
+                                    <label>性别<span class="req">*</span></label>
+                                    <select class="form-select" name="employeeGender">
+                                        <option value="男">男</option>
+                                        <option value="女">女</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>年龄<span class="req">*</span></label>
+                                    <input type="number" min="16" max="70" class="form-control" placeholder="25" name="employeeAge">
+                                </div>
+                                <div class="field">
+                                    <label>职务<span class="req">*</span></label>
+                                    <input type="text" class="form-control" placeholder="如 健身教练" name="staff" list="staffList">
+                                    <datalist id="staffList">
+                                        <option value="健身教练"></option>
+                                        <option value="减脂教练"></option>
+                                        <option value="健美操教练"></option>
+                                        <option value="动感单车教练"></option>
+                                        <option value="前台"></option>
+                                        <option value="保洁员"></option>
+                                    </datalist>
+                                    <div class="hint">可下拉选择，也可自行填写</div>
+                                </div>
+                                <div class="field">
+                                    <label>备注信息</label>
+                                    <input type="text" class="form-control" placeholder="如 负责私教课程" name="employeeMessage">
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <a class="btn btn-outline-secondary" th:href="@{/employee/selEmployee}">取消</a>
+                                <input type="submit" class="btn btn-primary" value="保存员工">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="adminCommon::common-footer"></footer>
+    </div>
+</div>
+
+<div th:include="adminCommon::common-scripts"></div>
+<script type="text/javascript">
+    function beforeSubmit(addForm) {
+        if (addForm.employeeName.value == "") {
+            alert("请输入姓名！");
+            return false;
+        }
+        if (addForm.employeeGender.value == "") {
+            alert("请输入性别！");
+            return false;
+        }
+        if (addForm.employeeAge.value == "") {
+            alert("请输入年龄！");
+            return false;
+        }
+        if (addForm.staff.value == "") {
+            alert("请输入职务！");
+            return false;
+        }
+        return true;
+    }
+</script>
+</body>
+</html>

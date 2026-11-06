@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.milotnt.mapper.EquipmentMaintainMapper">
+
+    <select id="findAll" resultType="equipmentMaintain">
+        SELECT *
+        FROM equipment_maintain
+        ORDER BY maintain_date DESC, maintain_id DESC
+    </select>
+
+    <insert id="insertMaintain" parameterType="equipmentMaintain" useGeneratedKeys="true"
+            keyProperty="maintainId">
+        INSERT INTO equipment_maintain (equipment_id, equipment_name, fault_desc, handler, maintain_date, cost, status)
+        VALUES (#{equipmentId}, #{equipmentName}, #{faultDesc}, #{handler}, #{maintainDate}, #{cost}, #{status})
+    </insert>
+
+    <update id="updateStatus">
+        UPDATE equipment_maintain
+        SET status = #{status}
+        WHERE maintain_id = #{maintainId}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        DELETE
+        FROM equipment_maintain
+        WHERE maintain_id = #{maintainId}
+    </delete>
+
+    <select id="selectPendingCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM equipment_maintain
+        WHERE status &lt;&gt; '已完成'
+    </select>
+
+    <select id="selectTotalCost" resultType="java.math.BigDecimal">
+        SELECT IFNULL(SUM(cost), 0)
+        FROM equipment_maintain
+    </select>
+
+</mapper>

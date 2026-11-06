@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.milotnt.mapper.CheckInMapper">
+
+    <select id="findAll" resultType="checkIn">
+        SELECT *
+        FROM check_in
+        ORDER BY check_in_date DESC, check_in_time DESC
+    </select>
+
+    <select id="selectByMemberAccount" parameterType="java.lang.Integer" resultType="checkIn">
+        SELECT *
+        FROM check_in
+        WHERE member_account = #{memberAccount}
+        ORDER BY check_in_date DESC, check_in_time DESC
+    </select>
+
+    <select id="selectByMemberAndDate" resultType="checkIn">
+        SELECT *
+        FROM check_in
+        WHERE member_account = #{memberAccount}
+          AND check_in_date = #{checkInDate}
+        LIMIT 1
+    </select>
+
+    <insert id="insertCheckIn" parameterType="checkIn" useGeneratedKeys="true" keyProperty="checkInId">
+        INSERT INTO check_in (member_account, member_name, check_in_date, check_in_time, check_in_type, remark)
+        VALUES (#{memberAccount}, #{memberName}, #{checkInDate}, #{checkInTime}, #{checkInType}, #{remark})
+    </insert>
+
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        DELETE
+        FROM check_in
+        WHERE check_in_id = #{checkInId}
+    </delete>
+
+    <select id="selectCountByDate" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM check_in
+        WHERE check_in_date = #{checkInDate}
+    </select>
+
+    <select id="selectMemberCountByDate" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT member_account)
+        FROM check_in
+        WHERE check_in_date = #{checkInDate}
+    </select>
+
+    <select id="selectLatestDate" resultType="java.lang.String">
+        SELECT DATE_FORMAT(MAX(check_in_date), '%Y-%m-%d')
+        FROM check_in
+    </select>
+
+    <select id="selectTotalCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM check_in
+    </select>
+
+    <select id="selectMemberDates" parameterType="java.lang.Integer" resultType="java.lang.String">
+        SELECT DATE_FORMAT(check_in_date, '%Y-%m-%d')
+        FROM check_in
+        WHERE member_account = #{memberAccount}
+        GROUP BY check_in_date
+        ORDER BY check_in_date DESC
+    </select>
+
+</mapper>

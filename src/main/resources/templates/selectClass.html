@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="adminCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="adminCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="adminCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">课程管理</h1>
+
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">数据看板</a></li>
+                    <li class="breadcrumb-item active">课程管理</li>
+                </ol>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat">
+                            <div class="stat-top">
+                                <span class="stat-label">课程总数</span>
+                                <span class="stat-icon"><i class="fas fa-calendar-days"></i></span>
+                            </div>
+                            <div class="stat-value num" th:text="${#lists.size(classList)}">0</div>
+                            <div class="stat-foot"><i class="fas fa-layer-group"></i> 在排课程</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat sky">
+                            <div class="stat-top">
+                                <span class="stat-label">累计报名</span>
+                                <span class="stat-icon"><i class="fas fa-user-check"></i></span>
+                            </div>
+                            <div class="stat-value num" th:text="${totalBooked}">0</div>
+                            <div class="stat-foot"><i class="fas fa-users"></i> 人次（含重复报名）</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat green">
+                            <div class="stat-top">
+                                <span class="stat-label">整体满员率</span>
+                                <span class="stat-icon"><i class="fas fa-gauge-high"></i></span>
+                            </div>
+                            <div class="stat-value num"><span th:text="${fillRate}">0</span><small>%</small></div>
+                            <div class="stat-foot"><i class="fas fa-chair"></i> 总容量 <b th:text="${capacityTotal}">0</b> 人</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat rose">
+                            <div class="stat-top">
+                                <span class="stat-label">已满员课程</span>
+                                <span class="stat-icon"><i class="fas fa-ban"></i></span>
+                            </div>
+                            <div class="stat-value num" th:text="${fullCount}">0</div>
+                            <div class="stat-foot"><i class="fas fa-lock"></i> 需新增排期或扩容</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-table me-1"></i>课程信息表</span>
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-sm btn-outline-secondary" th:href="@{/export/checkin}">
+                                <i class="fas fa-file-export me-1"></i>签到明细
+                            </a>
+                            <a class="btn btn-sm btn-primary" th:href="@{/class/toAddClass}">
+                                <i class="fas fa-plus me-1"></i>新增课程
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table id="datatablesSimple">
+                            <thead>
+                            <tr>
+                                <th>编号</th>
+                                <th>名称</th>
+                                <th>时间</th>
+                                <th>时长</th>
+                                <th>教练</th>
+                                <th>教室</th>
+                                <th>报名 / 容量</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            <tr th:each="class:${classList}">
+                                <td th:text="${class.classId}">编号</td>
+                                <td style="font-weight:600" th:text="${class.className}">名称</td>
+                                <td th:text="${class.classBegin}">时间</td>
+                                <td th:text="${class.classTime}">时长</td>
+                                <td th:text="${class.coach}">教练</td>
+                                <td>
+                                    <span class="badge bg-light text-dark" th:text="${class.classroom}">教室</span>
+                                </td>
+                                <td>
+                                    <span th:text="(${bookedMap[class.classId] ?: 0}) + ' / ' + (${class.capacity} ?: 20)"></span>
+                                    <span class="badge bg-danger ms-1"
+                                          th:if="${(bookedMap[class.classId] ?: 0) >= (class.capacity ?: 20)}">满员</span>
+                                </td>
+                                <td style="white-space:nowrap">
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       th:href="@{/class/selClassOrder(classId=${class.classId})}">报名信息</a>
+                                    <a class="btn btn-sm btn-outline-danger"
+                                       th:href="@{/class/delClass(classId=${class.classId})}"
+                                       onclick="return del()">删除</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="adminCommon::common-footer"></footer>
+    </div>
+</div>
+
+<div th:include="adminCommon::common-scripts"></div>
+<script>
+    function del() {
+        let msg = "删除课程会同时清除该课程的报名记录，确定继续吗？";
+        if (confirm(msg) == true) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+</script>
+</body>
+</html>

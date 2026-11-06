@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.milotnt.mapper.BodyTestMapper">
+
+    <select id="findAll" resultType="bodyTest">
+        SELECT *
+        FROM body_test
+        ORDER BY test_date DESC, body_test_id DESC
+    </select>
+
+    <select id="selectByMemberAccount" parameterType="java.lang.Integer" resultType="bodyTest">
+        SELECT *
+        FROM body_test
+        WHERE member_account = #{memberAccount}
+        ORDER BY test_date, body_test_id
+    </select>
+
+    <insert id="insertBodyTest" parameterType="bodyTest" useGeneratedKeys="true" keyProperty="bodyTestId">
+        INSERT INTO body_test (member_account, member_name, test_date, height, weight, body_fat, muscle, bmi, remark)
+        VALUES (#{memberAccount}, #{memberName}, #{testDate}, #{height}, #{weight}, #{bodyFat}, #{muscle}, #{bmi},
+                #{remark})
+    </insert>
+
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        DELETE
+        FROM body_test
+        WHERE body_test_id = #{bodyTestId}
+    </delete>
+
+    <select id="selectTotalCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM body_test
+    </select>
+
+    <select id="selectMemberCount" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT member_account)
+        FROM body_test
+    </select>
+
+</mapper>

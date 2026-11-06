@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="adminCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="adminCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="adminCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">员工管理</h1>
+
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">数据看板</a></li>
+                    <li class="breadcrumb-item active">员工管理</li>
+                </ol>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat">
+                            <div class="stat-top">
+                                <span class="stat-label">员工总数</span>
+                                <span class="stat-icon"><i class="fas fa-user-tie"></i></span>
+                            </div>
+                            <div class="stat-value num" th:text="${#lists.size(employeeList)}">0</div>
+                            <div class="stat-foot"><i class="fas fa-building"></i> 门店在册员工</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat sky">
+                            <div class="stat-top">
+                                <span class="stat-label">教练团队</span>
+                                <span class="stat-icon"><i class="fas fa-dumbbell"></i></span>
+                            </div>
+                            <div class="stat-value num"
+                                 th:text="${coachCount}">0</div>
+                            <div class="stat-foot"><i class="fas fa-users-rectangle"></i> 含私教与团课教练</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat green">
+                            <div class="stat-top">
+                                <span class="stat-label">平均年龄</span>
+                                <span class="stat-icon"><i class="fas fa-cake-candles"></i></span>
+                            </div>
+                            <div class="stat-value num">
+                                <span th:text="${avgAge}">0</span><small> 岁</small>
+                            </div>
+                            <div class="stat-foot"><i class="fas fa-users"></i> 团队年龄结构</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat amber">
+                            <div class="stat-top">
+                                <span class="stat-label">最新入职</span>
+                                <span class="stat-icon"><i class="fas fa-calendar-plus"></i></span>
+                            </div>
+                            <div class="stat-value" style="font-size:18px"
+                                 th:text="${latestEntry}">—</div>
+                            <div class="stat-foot"><i class="fas fa-clock"></i> 最近一次人员到岗</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-table me-1"></i>员工信息表（<span th:text="${#lists.size(employeeList)}">0</span> 人）</span>
+                        <a class="btn btn-sm btn-primary" th:href="@{/employee/toAddEmployee}">
+                            <i class="fas fa-plus me-1"></i>新增员工
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <table id="datatablesSimple">
+                            <thead>
+                            <tr>
+                                <th>工号</th>
+                                <th>姓名</th>
+                                <th>性别</th>
+                                <th>年龄</th>
+                                <th>入职时间</th>
+                                <th>职务</th>
+                                <th>备注信息</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            <tr th:each="emp:${employeeList}">
+                                <td th:text="${emp.employeeAccount}">工号</td>
+                                <td style="font-weight:600" th:text="${emp.employeeName}">姓名</td>
+                                <td th:text="${emp.employeeGender}">性别</td>
+                                <td th:text="${emp.employeeAge}">年龄</td>
+                                <td th:text="${emp.entryTime}">入职时间</td>
+                                <td>
+                                    <span class="badge bg-light text-dark" th:text="${emp.staff}">职务</span>
+                                </td>
+                                <td th:text="${emp.employeeMessage}">备注信息</td>
+                                <td style="white-space:nowrap">
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       th:href="@{/employee/toUpdateEmployee(employeeAccount=${emp.employeeAccount})}">编辑</a>
+                                    <a class="btn btn-sm btn-outline-danger"
+                                       th:href="@{/employee/delEmployee(employeeAccount=${emp.employeeAccount})}"
+                                       onclick="return del()">解雇</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="adminCommon::common-footer"></footer>
+    </div>
+</div>
+
+<div th:include="adminCommon::common-scripts"></div>
+<script>
+    function del() {
+        let msg = "确定要解雇该员工吗？";
+        if (confirm(msg) == true) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+</script>
+</body>
+</html>

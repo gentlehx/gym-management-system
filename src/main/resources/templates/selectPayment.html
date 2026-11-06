@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="adminCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="adminCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="adminCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">收费管理</h1>
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/toAdminMain}">主页</a></li>
+                    <li class="breadcrumb-item active">收费管理</li>
+                </ol>
+
+                <div class="alert alert-success alert-dismissible fade show" th:if="${msg}">
+                    <i class="fas fa-check-circle me-1"></i><span th:text="${msg}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-6 col-md-6">
+                        <div class="card bg-success text-white mb-4">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="small">累计收入</div>
+                                    <div class="fs-4 fw-bold">
+                                        ¥<span th:text="${#numbers.formatDecimal(totalAmount,1,'COMMA',2,'POINT')}">42,395.00</span>
+                                    </div>
+                                </div>
+                                <i class="fas fa-coins fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6 col-md-6">
+                        <div class="card bg-primary text-white mb-4">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="small">收费笔数</div>
+                                    <div class="fs-4 fw-bold" th:text="${paymentCount}">39</div>
+                                </div>
+                                <i class="fas fa-receipt fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-table me-1"></i>收费流水</span>
+                        <div>
+                            <a class="btn btn-sm btn-outline-secondary me-2" th:href="@{/export/payment}">
+                                <i class="fas fa-file-export me-1"></i>导出 CSV
+                            </a>
+                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#addPaymentModal">
+                                <i class="fas fa-plus me-1"></i>新增收费
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table id="datatablesSimple">
+                            <thead>
+                            <tr>
+                                <th>流水号</th>
+                                <th>收费日期</th>
+                                <th>会员账号</th>
+                                <th>会员姓名</th>
+                                <th>收费类型</th>
+                                <th>支付方式</th>
+                                <th>金额(元)</th>
+                                <th>课时</th>
+                                <th>备注</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="p:${paymentList}">
+                                <td th:text="${p.paymentId}">1</td>
+                                <td th:text="${p.payTime}">2025-10-08</td>
+                                <td th:text="${p.memberAccount}">202509867</td>
+                                <td th:text="${p.memberName}">张三</td>
+                                <td>
+                                    <span class="badge bg-light text-dark" th:text="${p.payType}">办卡</span>
+                                </td>
+                                <td th:text="${p.payWay}">微信</td>
+                                <td class="fw-bold"
+                                    th:text="${#numbers.formatDecimal(p.amount,1,'COMMA',2,'POINT')}">1980.00
+                                </td>
+                                <td th:text="${p.classCount}">30</td>
+                                <td th:text="${p.remark}"></td>
+                                <td>
+                                    <a th:href="@{/payment/delPayment(paymentId=${p.paymentId})}"
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('确定删除这条收费记录吗？')">删除</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="adminCommon::common-footer"></footer>
+    </div>
+</div>
+
+<!-- 新增收费弹窗 -->
+<div class="modal fade" id="addPaymentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form class="modal-content" th:action="@{/payment/addPayment}" method="post">
+            <div class="modal-header">
+                <h5 class="modal-title">新增收费</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">会员</label>
+                    <select class="form-select" name="memberAccount" required>
+                        <option value="">请选择会员</option>
+                        <option th:each="m:${memberList}" th:value="${m.memberAccount}"
+                                th:text="${m.memberName} + '（剩余 ' + ${m.cardNextClass} + ' 课时）'"></option>
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label class="form-label">收费类型</label>
+                        <select class="form-select" name="payType">
+                            <option value="办卡">办卡</option>
+                            <option value="续费">续费</option>
+                            <option value="私教课">私教课</option>
+                            <option value="商品">商品</option>
+                        </select>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label class="form-label">支付方式</label>
+                        <select class="form-select" name="payWay">
+                            <option value="微信">微信</option>
+                            <option value="支付宝">支付宝</option>
+                            <option value="银行卡">银行卡</option>
+                            <option value="现金">现金</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label class="form-label">金额（元）</label>
+                        <input type="number" step="0.01" min="0" class="form-control" name="amount" required>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label class="form-label">购买课时</label>
+                        <input type="number" min="0" value="0" class="form-control" name="classCount">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">备注</label>
+                    <input type="text" class="form-control" name="remark" placeholder="选填，如：续费 30 节">
+                </div>
+                <div class="text-muted small">收费日期固定记为 2025-10-10；填写的课时会自动加到会员剩余课时。</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="submit" class="btn btn-primary">保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div th:include="adminCommon::common-scripts"></div>
+</body>
+</html>

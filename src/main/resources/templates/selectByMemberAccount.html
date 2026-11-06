@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="adminCommon::common-header"></head>
+<body class="sb-nav-fixed">
+<nav th:replace="adminCommon::common-navbar"></nav>
+<div id="layoutSidenav">
+    <div th:replace="adminCommon::common-sidenav"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">会员卡查询</h1>
+
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">数据看板</a></li>
+                    <li class="breadcrumb-item active">会员卡查询</li>
+                </ol>
+
+                <div class="row g-3">
+                    <div class="col-xl-4">
+                        <div class="card mb-4">
+                            <div class="card-header"><i class="fas fa-magnifying-glass me-1"></i>卡号查询</div>
+                            <div class="card-body">
+                                <form th:action="@{/member/selByCard}" method="post">
+                                    <div class="field">
+                                        <label>会员卡号 / 会员账号</label>
+                                        <input type="text" class="form-control" placeholder="请输入 9 位卡号，如 202509867"
+                                               onkeypress="return event.keyCode>=48&&event.keyCode<=57"
+                                               name="memberAccount">
+                                        <div class="hint">仅支持数字卡号</div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100" style="margin-top:14px">
+                                        <i class="fas fa-search me-1"></i>查询会员卡
+                                    </button>
+                                </form>
+
+                                <div class="alert alert-warning" style="margin-top:14px" th:if="${noMessage}">
+                                    <i class="fas fa-circle-exclamation me-1"></i><span th:text="${noMessage}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-8">
+                        <div class="card mb-4">
+                            <div class="card-header"><i class="fas fa-id-card me-1"></i>查询结果</div>
+                            <div class="card-body">
+                                <div class="empty"
+                                     th:if="${memberList == null or #lists.isEmpty(memberList)}">
+                                    <i class="fas fa-credit-card"></i>
+                                    <p>在左侧输入卡号即可查询会员卡信息</p>
+                                </div>
+
+                                <table class="table table-hover"
+                                       th:if="${memberList != null and not #lists.isEmpty(memberList)}">
+                                    <thead>
+                                    <tr>
+                                        <th>卡号</th>
+                                        <th>姓名</th>
+                                        <th>办卡时间</th>
+                                        <th>到期日</th>
+                                        <th>购买课时</th>
+                                        <th>剩余课时</th>
+                                        <th>操作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="mem:${memberList}">
+                                        <td th:text="${mem.memberAccount}">卡号</td>
+                                        <td style="font-weight:600" th:text="${mem.memberName}">姓名</td>
+                                        <td th:text="${mem.cardTime}">办卡时间</td>
+                                        <td th:text="${mem.cardEndDate}">到期日</td>
+                                        <td th:text="${mem.cardClass}">购买课时</td>
+                                        <td>
+                                            <span class="badge"
+                                                  th:classappend="${mem.cardNextClass <= 5} ? 'bg-danger' : 'bg-light text-dark'"
+                                                  th:text="${mem.cardNextClass}">剩余课时</span>
+                                        </td>
+                                        <td style="white-space:nowrap">
+                                            <a class="btn btn-sm btn-outline-primary"
+                                               th:href="@{/member/detail(memberAccount=${mem.memberAccount})}">档案</a>
+                                            <a class="btn btn-sm btn-outline-secondary"
+                                               th:href="@{/member/toUpdateMember(memberAccount=${mem.memberAccount})}">编辑</a>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                <div th:each="mem:${memberList}" th:if="${memberList != null and not #lists.isEmpty(memberList)}">
+                                    <div class="row g-3">
+                                        <div class="col-md-3 col-6">
+                                            <div class="kv"><span>性别</span><span th:text="${mem.memberGender}">男</span></div>
+                                        </div>
+                                        <div class="col-md-3 col-6">
+                                            <div class="kv"><span>年龄</span><span th:text="${mem.memberAge}">25</span></div>
+                                        </div>
+                                        <div class="col-md-3 col-6">
+                                            <div class="kv"><span>身高</span><span th:text="${mem.memberHeight} + ' cm'">175 cm</span></div>
+                                        </div>
+                                        <div class="col-md-3 col-6">
+                                            <div class="kv"><span>体重</span><span th:text="${mem.memberWeight} + ' kg'">68 kg</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="adminCommon::common-footer"></footer>
+    </div>
+</div>
+
+<div th:include="adminCommon::common-scripts"></div>
+</body>
+</html>
